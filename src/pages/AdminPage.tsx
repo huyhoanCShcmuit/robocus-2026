@@ -98,10 +98,11 @@ export const AdminPage: React.FC = () => {
     const updateTeamList = (list: any[]) =>
       list.map((t) => {
         if (t.id !== teamId) return t;
-        // Toggle: if same medal clicked again, remove it (set to NONE)
-        const currentMedal = t.customMedal || 'NONE';
-        const newMedal = (medal !== 'NONE' && currentMedal === medal) ? undefined : (medal === 'NONE' ? undefined : medal);
-        return { ...t, customMedal: newMedal };
+        // Remove if: user clicked NONE, or toggled same medal off
+        const currentMedal: string = t.customMedal || 'NONE';
+        const isToggleOff = medal === 'NONE' || currentMedal === medal;
+        // Use null (not undefined) so Firebase actually deletes the field
+        return { ...t, customMedal: isToggleOff ? null : medal };
       });
 
     if (division === 'A') updated.teamsA = updateTeamList(updated.teamsA);
