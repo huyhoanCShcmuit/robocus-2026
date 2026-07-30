@@ -22,8 +22,9 @@ export function calculateRankingsA(
   const safeTeams = teams || [];
   const safeMatches = matches || [];
   const rankedList: RankedTeamA[] = safeTeams.map((team) => {
-    // Calculate total score from T1 to T8
-    const totalScore = team.scores.reduce<number>(
+    // Calculate total score from T1 to T8 with safe fallback
+    const scores = team.scores || [];
+    const totalScore = scores.reduce<number>(
       (acc, val) => acc + (val || 0),
       0
     );
@@ -31,7 +32,7 @@ export function calculateRankingsA(
     // Calculate wins counted directly from matches
     let wins = 0;
     safeMatches.forEach((m) => {
-      if (m.winnerId === team.id) {
+      if (m && m.winnerId === team.id) {
         wins += 1;
       }
     });
@@ -110,9 +111,11 @@ export function calculateRankingsB(
     const taskMaxScores = new Array(8).fill(0);
     const roundTotals: number[] = [];
 
-    team.rounds.forEach((rd) => {
+    const rounds = team.rounds || [];
+    rounds.forEach((rd) => {
       let rTotal = 0;
-      rd.tasks.forEach((score, taskIdx) => {
+      const tasks = rd.tasks || [];
+      tasks.forEach((score, taskIdx) => {
         const val = score || 0;
         rTotal += val;
         if (taskIdx < 8) {
@@ -233,28 +236,27 @@ export function calculateRankingsC(
     let goalsAgainst = 0;
 
     safeMatches.forEach((m) => {
-      // Chỉ tính điểm đối với các trận đã diễn ra (isCompleted === true)
-      if (!m.isCompleted) return;
+      if (!m || !m.isCompleted) return;
 
       if (m.team1Id === team.id) {
         matchesPlayed += 1;
-        goalsFor += m.score1;
-        goalsAgainst += m.score2;
-        if (m.score1 > m.score2) wins += 1;
-        else if (m.score1 === m.score2) draws += 1;
+        goalsFor += (m.score1 || 0);
+        goalsAgainst += (m.score2 || 0);
+        if ((m.score1 || 0) > (m.score2 || 0)) wins += 1;
+        else if ((m.score1 || 0) === (m.score2 || 0)) draws += 1;
         else losses += 1;
       } else if (m.team2Id === team.id) {
         matchesPlayed += 1;
-        goalsFor += m.score2;
-        goalsAgainst += m.score1;
-        if (m.score2 > m.score1) wins += 1;
-        else if (m.score2 === m.score1) draws += 1;
+        goalsFor += (m.score2 || 0);
+        goalsAgainst += (m.score1 || 0);
+        if ((m.score2 || 0) > (m.score1 || 0)) wins += 1;
+        else if ((m.score2 || 0) === (m.score1 || 0)) draws += 1;
         else losses += 1;
       }
     });
 
-    const points = wins * 3 + draws * 1; // Thắng +3, Hòa +1, Thua +0
-    const goalDifference = goalsFor - goalsAgainst; // Hiệu số = Bàn thắng - Bàn thua
+    const points = wins * 3 + draws * 1;
+    const goalDifference = goalsFor - goalsAgainst;
 
     return {
       ...team,
@@ -272,12 +274,6 @@ export function calculateRankingsC(
   });
 
   if (autoRankingEnabled) {
-    // Xếp hạng Bảng C theo 5 tiêu chí ưu tiên:
-    // 1. Tổng ĐIỂM (desc)
-    // 2. Số trận THẮNG (desc, nhiều hơn)
-    // 3. Số trận HÒA (desc, nhiều hơn)
-    // 4. Số trận THUA (asc, ít hơn)
-    // 5. HIỆU SỐ (desc)
     rankedList.sort((a, b) => {
       if (b.points !== a.points) {
         return b.points - a.points;
@@ -297,7 +293,6 @@ export function calculateRankingsC(
       return 0;
     });
 
-    // Assign ranks
     let currentRank = 1;
     for (let i = 0; i < rankedList.length; i++) {
       if (i === 0) {
@@ -324,7 +319,6 @@ export function calculateRankingsC(
       }
     }
   } else {
-    // MANUAL MEDAL SORTING
     rankedList.sort((a, b) => {
       const mA = medalOrder[a.customMedal || 'NONE'];
       const mB = medalOrder[b.customMedal || 'NONE'];
