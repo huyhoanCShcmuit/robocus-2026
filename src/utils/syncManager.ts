@@ -1,5 +1,6 @@
 import type { CompetitionData } from '../types';
 import { INITIAL_COMPETITION_DATA } from '../data/initialData';
+import { db, ref, onValue, set } from './firebase';
 
 const STORAGE_KEY = 'robocus_2026_leaderboard_data';
 const CHANNEL_NAME = 'robocus_2026_sync_channel';
@@ -28,11 +29,29 @@ class SyncManager {
         }
       });
 
-      // 1. Initial fetch from server file storage
+      // 1. Connect to Firebase Realtime Database for Global Real-time Sync
+      this.initFirebaseSync();
+
+      // 2. Initial fetch from local server endpoint if available
       this.fetchRemoteData();
 
-      // 2. Connect to Server-Sent Events stream for cross-browser real-time sync
+      // 3. Connect to local Server-Sent Events stream if available
       this.initRealtimeStream();
+    }
+  }
+
+  private initFirebaseSync() {
+    if (!db) return;
+    try {
+      const dbRef = ref(db, 'leaderboard_data');
+      onValue(dbRef, (snapshot) => {
+        const remoteData = snapshot.val();
+        if (remoteData) {
+          this.updateLocalState(remoteData);
+        }
+      });
+    } catch (e) {
+      console.warn('Firebase Realtime Sync warning:', e);
     }
   }
 
@@ -117,7 +136,13 @@ class SyncManager {
         this.channel.postMessage({ type: 'DATA_UPDATED', timestamp: updatedData.lastUpdated });
       }
 
-      // Sync with server file storage & broadcast to all connected devices via SSE
+      // 1. Sync with Firebase Realtime Database
+      if (db) {
+        const dbRef = ref(db, 'leaderboard_data');
+        set(dbRef, updatedData).catch((e) => console.error('Firebase save error:', e));
+      }
+
+      // 2. Sync with local server file storage as fallback
       fetch('/api/data', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
