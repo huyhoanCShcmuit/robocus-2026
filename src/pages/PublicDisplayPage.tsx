@@ -215,7 +215,7 @@ export const PublicDisplayPage: React.FC = () => {
         </div>
 
         {/* Sci-Fi Title Banner */}
-        <div className="text-center my-1 relative">
+        <div className="text-center mt-4 mb-2 relative">
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-black font-orbitron tracking-wider text-white text-glow-cyan uppercase mb-1 flex items-center justify-center gap-2 sm:gap-3">
             <Sparkles className="w-5 h-5 sm:w-8 sm:h-8 text-cyan-400 animate-spin" style={{ animationDuration: '8s' }} />
             <span>BẢNG XẾP HẠNG</span>
