@@ -77,7 +77,7 @@ export const LeaderboardC: React.FC<LeaderboardCProps> = ({ teams = [], autoRank
                   </div>
 
                   {/* 5. Số trận hòa */}
-                  <div className="flex-1 text-center text-amber-300">
+                  <div className="flex-1 text-center">
                     {team.draws || 0}
                   </div>
 
