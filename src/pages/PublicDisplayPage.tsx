@@ -142,19 +142,8 @@ export const PublicDisplayPage: React.FC = () => {
     }
   };
 
-  const getNextDivisionLabel = () => {
-    const idx = DIVISIONS.indexOf(activeDivision);
-    const next = DIVISIONS[(idx + 1) % DIVISIONS.length];
-    switch (next) {
-      case 'A': return 'BẢNG A';
-      case 'B_EV3': return 'B - EV3';
-      case 'B_SPIKE': return 'B - SPIKE';
-      case 'C': return 'BẢNG C';
-    }
-  };
-
   const progressPct = (countdown / AUTO_SWITCH_MS) * 100;
-  const secondsLeft = Math.ceil(countdown / 1000);
+
 
   return (
     <div className="min-h-screen bg-scifi-cyber text-white flex flex-col justify-between selection:bg-cyan-500 selection:text-slate-950 font-sans relative overflow-hidden">
@@ -246,14 +235,7 @@ export const PublicDisplayPage: React.FC = () => {
         {activeDivision === 'C' && <LeaderboardC teams={rankedC} autoRankingEnabled={autoRankingEnabled} />}
       </main>
 
-      {/* Auto-rotate Next Board Indicator (only in fullscreen) */}
-      {isFullscreen && (
-        <div className="fixed bottom-16 sm:bottom-20 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 bg-slate-950/90 border border-cyan-500/40 backdrop-blur px-4 py-2 rounded-full shadow-2xl text-xs font-orbitron">
-          <span className="text-slate-400">TIẾP THEO:</span>
-          <span className="text-cyan-300 font-extrabold">{getNextDivisionLabel()}</span>
-          <span className="text-amber-400 font-black tabular-nums w-6 text-center">{secondsLeft}s</span>
-        </div>
-      )}
+
 
       {/* Fullscreen Button */}
       <button
