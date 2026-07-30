@@ -8,6 +8,7 @@ import type {
   MatchResultC,
   RankedTeamC,
 } from '../types';
+import { toSafeArray } from './safeArray';
 
 const medalOrder = { GOLD: 1, SILVER: 2, BRONZE: 3, NONE: 4 };
 
@@ -19,11 +20,12 @@ export function calculateRankingsA(
   matches: MatchResultA[] = [],
   autoRankingEnabled: boolean = true
 ): RankedTeamA[] {
-  const safeTeams = teams || [];
-  const safeMatches = matches || [];
+  const safeTeams = toSafeArray<TeamA>(teams);
+  const safeMatches = toSafeArray<MatchResultA>(matches);
+
   const rankedList: RankedTeamA[] = safeTeams.map((team) => {
-    // Calculate total score from T1 to T8 with safe fallback
-    const scores = team.scores || [];
+    // Calculate total score from T1 to T8 with safe array conversion
+    const scores = toSafeArray<number | null>(team.scores);
     const totalScore = scores.reduce<number>(
       (acc, val) => acc + (val || 0),
       0
@@ -106,15 +108,15 @@ export function calculateRankingsB(
   teams: TeamB[] = [],
   autoRankingEnabled: boolean = true
 ): RankedTeamB[] {
-  const safeTeams = teams || [];
+  const safeTeams = toSafeArray<TeamB>(teams);
   const rankedList: RankedTeamB[] = safeTeams.map((team) => {
     const taskMaxScores = new Array(8).fill(0);
     const roundTotals: number[] = [];
 
-    const rounds = team.rounds || [];
+    const rounds = toSafeArray<any>(team.rounds);
     rounds.forEach((rd) => {
       let rTotal = 0;
-      const tasks = rd.tasks || [];
+      const tasks = toSafeArray<number>(rd?.tasks);
       tasks.forEach((score, taskIdx) => {
         const val = score || 0;
         rTotal += val;
@@ -225,8 +227,8 @@ export function calculateRankingsC(
   matches: MatchResultC[] = [],
   autoRankingEnabled: boolean = true
 ): RankedTeamC[] {
-  const safeTeams = teams || [];
-  const safeMatches = matches || [];
+  const safeTeams = toSafeArray<TeamC>(teams);
+  const safeMatches = toSafeArray<MatchResultC>(matches);
   const rankedList: RankedTeamC[] = safeTeams.map((team) => {
     let matchesPlayed = 0;
     let wins = 0;

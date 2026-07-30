@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { RankedTeamA } from '../types';
+import { toSafeArray } from '../utils/safeArray';
 
 interface LeaderboardAProps {
   teams: RankedTeamA[];
@@ -8,7 +9,7 @@ interface LeaderboardAProps {
 }
 
 export const LeaderboardA: React.FC<LeaderboardAProps> = ({ teams = [], autoRankingEnabled = true }) => {
-  const safeTeams = teams || [];
+  const safeTeams = toSafeArray<RankedTeamA>(teams);
 
   const getPillClass = (team: RankedTeamA) => {
     if (autoRankingEnabled) {
@@ -46,7 +47,7 @@ export const LeaderboardA: React.FC<LeaderboardAProps> = ({ teams = [], autoRank
           <div className="space-y-3 relative">
             <AnimatePresence mode="popLayout">
               {safeTeams.map((team) => {
-                const scores = team.scores || [];
+                const scores = toSafeArray<number | null>(team.scores);
                 const playedMatches = scores.filter((s) => s !== null && s !== undefined).length;
                 return (
                   <motion.div
