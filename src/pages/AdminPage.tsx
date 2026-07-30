@@ -181,11 +181,12 @@ export const AdminPage: React.FC = () => {
     const s1 = val1 === '' ? null : Math.min(100, Math.max(0, parseInt(val1) || 0));
     const s2 = val2 === '' ? null : Math.min(100, Math.max(0, parseInt(val2) || 0));
 
-    const teamsA = formData?.teamsA || [];
-    const matchesA = formData?.matchesA || [];
+    const teamsA = (formData?.teamsA || []).filter(Boolean);
+    const matchesA = (formData?.matchesA || []).filter(Boolean);
 
     // 1. Update match scores in matchesA (preserve manual winnerId if set)
     const updatedMatchesA = matchesA.map((m) => {
+      if (!m) return m;
       if (m.id === matchId) {
         return { ...m, score1: s1, score2: s2 };
       }
@@ -193,8 +194,8 @@ export const AdminPage: React.FC = () => {
     });
 
     // 2. Find indices i and j of team1 and team2 in teamsA
-    const i = teamsA.findIndex((t) => t.id === team1Id);
-    const j = teamsA.findIndex((t) => t.id === team2Id);
+    const i = teamsA.findIndex((t) => t && t.id === team1Id);
+    const j = teamsA.findIndex((t) => t && t.id === team2Id);
 
     if (i === -1 || j === -1) return;
 
@@ -203,14 +204,15 @@ export const AdminPage: React.FC = () => {
 
     // 3. Update team.scores for team1 and team2
     let updatedTeamsA = teamsA.map((t, idx) => {
+      if (!t) return t;
       if (idx === i) {
         const newScores = [...(t.scores || new Array(8).fill(null))];
-        newScores[slot1] = s1;
+        if (slot1 >= 0 && slot1 < 8) newScores[slot1] = s1;
         return { ...t, scores: newScores };
       }
       if (idx === j) {
         const newScores = [...(t.scores || new Array(8).fill(null))];
-        newScores[slot2] = s2;
+        if (slot2 >= 0 && slot2 < 8) newScores[slot2] = s2;
         return { ...t, scores: newScores };
       }
       return t;
@@ -218,17 +220,20 @@ export const AdminPage: React.FC = () => {
 
     // 4. Recalculate wins for all teams based on manual winnerId selection
     const winsMap: Record<string, number> = {};
-    updatedTeamsA.forEach((t) => (winsMap[t.id] = 0));
+    updatedTeamsA.forEach((t) => { if (t && t.id) winsMap[t.id] = 0; });
     updatedMatchesA.forEach((m) => {
-      if (m.winnerId && winsMap[m.winnerId] !== undefined) {
+      if (m && m.winnerId && winsMap[m.winnerId] !== undefined) {
         winsMap[m.winnerId] += 1;
       }
     });
 
-    updatedTeamsA = updatedTeamsA.map((t) => ({
-      ...t,
-      wins: winsMap[t.id] !== undefined ? winsMap[t.id] : (t.wins || 0),
-    }));
+    updatedTeamsA = updatedTeamsA.map((t) => {
+      if (!t) return t;
+      return {
+        ...t,
+        wins: winsMap[t.id] !== undefined ? winsMap[t.id] : (t.wins || 0),
+      };
+    });
 
     commitData({
       ...formData,
@@ -239,10 +244,11 @@ export const AdminPage: React.FC = () => {
 
   // Handle Manual Winner Selection by Referee
   const handleManualWinnerChangeA = (matchId: string, selectedWinnerId: string | null) => {
-    const teamsA = formData?.teamsA || [];
-    const matchesA = formData?.matchesA || [];
+    const teamsA = (formData?.teamsA || []).filter(Boolean);
+    const matchesA = (formData?.matchesA || []).filter(Boolean);
 
     const updatedMatchesA = matchesA.map((m) => {
+      if (!m) return m;
       if (m.id === matchId) {
         // Toggle off if already selected, otherwise set to selectedWinnerId
         const newWinnerId = m.winnerId === selectedWinnerId ? null : selectedWinnerId;
@@ -253,17 +259,20 @@ export const AdminPage: React.FC = () => {
 
     // Recalculate wins for all teams in Bảng A based on manual winner selection
     const winsMap: Record<string, number> = {};
-    teamsA.forEach((t) => (winsMap[t.id] = 0));
+    teamsA.forEach((t) => { if (t && t.id) winsMap[t.id] = 0; });
     updatedMatchesA.forEach((m) => {
-      if (m.winnerId && winsMap[m.winnerId] !== undefined) {
+      if (m && m.winnerId && winsMap[m.winnerId] !== undefined) {
         winsMap[m.winnerId] += 1;
       }
     });
 
-    const updatedTeamsA = teamsA.map((t) => ({
-      ...t,
-      wins: winsMap[t.id] !== undefined ? winsMap[t.id] : (t.wins || 0),
-    }));
+    const updatedTeamsA = teamsA.map((t) => {
+      if (!t) return t;
+      return {
+        ...t,
+        wins: winsMap[t.id] !== undefined ? winsMap[t.id] : (t.wins || 0),
+      };
+    });
 
     commitData({
       ...formData,
