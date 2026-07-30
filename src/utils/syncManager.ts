@@ -12,13 +12,17 @@ class SyncManager {
 
   constructor() {
     if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
-      this.channel = new BroadcastChannel(CHANNEL_NAME);
-      this.channel.onmessage = (event) => {
-        if (event.data && event.data.type === 'DATA_UPDATED') {
-          const freshData = this.loadData();
-          this.notifyListeners(freshData);
-        }
-      };
+      try {
+        this.channel = new BroadcastChannel(CHANNEL_NAME);
+        this.channel.onmessage = (event) => {
+          if (event.data && event.data.type === 'DATA_UPDATED') {
+            const freshData = this.loadData();
+            this.notifyListeners(freshData);
+          }
+        };
+      } catch (e) {
+        console.warn('BroadcastChannel not supported:', e);
+      }
     }
 
     if (typeof window !== 'undefined') {
@@ -45,9 +49,13 @@ class SyncManager {
     try {
       const dbRef = ref(db, 'leaderboard_data');
       onValue(dbRef, (snapshot) => {
-        const remoteData = snapshot.val();
-        if (remoteData) {
-          this.updateLocalState(remoteData);
+        try {
+          const remoteData = snapshot.val();
+          if (remoteData) {
+            this.updateLocalState(remoteData);
+          }
+        } catch (e) {
+          console.warn('Error processing Firebase snapshot:', e);
         }
       });
     } catch (e) {
@@ -91,6 +99,7 @@ class SyncManager {
   }
 
   private updateLocalState(data: CompetitionData) {
+    if (!data) return;
     if (this.memoryCache && data.lastUpdated && this.memoryCache.lastUpdated === data.lastUpdated) {
       return;
     }
@@ -113,7 +122,7 @@ class SyncManager {
         return INITIAL_COMPETITION_DATA;
       }
       const parsed = JSON.parse(json);
-      if (!parsed.version || parsed.version < 5) {
+      if (!parsed || !parsed.version || parsed.version < 5) {
         console.warn('Outdated local storage version detected. Resetting to version 5...');
         this.saveData(INITIAL_COMPETITION_DATA);
         return INITIAL_COMPETITION_DATA;
@@ -127,19 +136,29 @@ class SyncManager {
   }
 
   public saveData(data: CompetitionData): void {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || !data) return;
     try {
       const updatedData = { ...data, lastUpdated: Date.now() };
       this.updateLocalState(updatedData);
 
       if (this.channel) {
-        this.channel.postMessage({ type: 'DATA_UPDATED', timestamp: updatedData.lastUpdated });
+        try {
+          this.channel.postMessage({ type: 'DATA_UPDATED', timestamp: updatedData.lastUpdated });
+        } catch (e) {
+          console.warn('Channel postMessage warning:', e);
+        }
       }
 
-      // 1. Sync with Firebase Realtime Database
+      // 1. Sync with Firebase Realtime Database safely
       if (db) {
-        const dbRef = ref(db, 'leaderboard_data');
-        set(dbRef, updatedData).catch((e) => console.error('Firebase save error:', e));
+        try {
+          const dbRef = ref(db, 'leaderboard_data');
+          set(dbRef, updatedData).catch((e) => {
+            console.warn('Firebase save warning (non-fatal):', e);
+          });
+        } catch (e) {
+          console.warn('Firebase set error:', e);
+        }
       }
 
       // 2. Sync with local server file storage as fallback
@@ -147,7 +166,7 @@ class SyncManager {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedData),
-      }).catch((e) => console.error('Failed to sync data with server:', e));
+      }).catch((e) => console.warn('Failed to sync data with server:', e));
 
     } catch (e) {
       console.error('Failed to save storage data:', e);
@@ -172,7 +191,13 @@ class SyncManager {
   }
 
   private notifyListeners(data: CompetitionData) {
-    this.listeners.forEach((cb) => cb(data));
+    this.listeners.forEach((cb) => {
+      try {
+        cb(data);
+      } catch (e) {
+        console.error('Error in subscribe listener:', e);
+      }
+    });
   }
 }
 
