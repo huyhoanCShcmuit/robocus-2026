@@ -47,7 +47,12 @@ export const AdminPage: React.FC = () => {
     const unsubscribe = syncManager.subscribe((freshData) => {
       if (freshData) {
         setData(freshData);
-        setFormData(JSON.parse(JSON.stringify(freshData)));
+        setFormData((prev) => {
+          if (prev?.lastUpdated && freshData.lastUpdated && prev.lastUpdated === freshData.lastUpdated) {
+            return prev;
+          }
+          return freshData;
+        });
       }
     });
     return () => unsubscribe();
