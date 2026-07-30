@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { CompetitionData, TeamA, TeamB, TeamC } from '../types';
 import { syncManager } from '../utils/syncManager';
 import { calculateRankingsB } from '../utils/rankingEngine';
+import { toSafeArray } from '../utils/safeArray';
 import { Trophy, Lock, Key, Plus, Trash2, Download, Upload, RefreshCw, CheckCircle, ExternalLink, Zap, ArrowLeft } from 'lucide-react';
 
 const DEFAULT_PIN = '2026';
@@ -95,7 +96,13 @@ export const AdminPage: React.FC = () => {
   const handleSetTeamMedal = (teamId: string, division: 'A' | 'B_EV3' | 'B_SPIKE' | 'C', medal: 'GOLD' | 'SILVER' | 'BRONZE' | 'NONE') => {
     const updated = { ...formData };
     const updateTeamList = (list: any[]) =>
-      list.map((t) => (t.id === teamId ? { ...t, customMedal: medal === 'NONE' ? undefined : medal } : t));
+      list.map((t) => {
+        if (t.id !== teamId) return t;
+        // Toggle: if same medal clicked again, remove it (set to NONE)
+        const currentMedal = t.customMedal || 'NONE';
+        const newMedal = (medal !== 'NONE' && currentMedal === medal) ? undefined : (medal === 'NONE' ? undefined : medal);
+        return { ...t, customMedal: newMedal };
+      });
 
     if (division === 'A') updated.teamsA = updateTeamList(updated.teamsA);
     else if (division === 'B_EV3') updated.teamsB_EV3 = updateTeamList(updated.teamsB_EV3);
@@ -296,15 +303,18 @@ export const AdminPage: React.FC = () => {
   ) => {
     const num = Math.max(0, parseInt(val) || 0);
     const key = div === 'B_EV3' ? 'teamsB_EV3' : 'teamsB_SPIKE';
-    const currentTeams = formData?.[key] || [];
+    const currentTeams = toSafeArray<TeamB>(formData?.[key]);
 
     const updated: CompetitionData = {
       ...formData,
       [key]: currentTeams.map((t) => {
         if (t.id === teamId) {
-          const newRounds = (t.rounds || []).map((rd) => {
+          const newRounds = toSafeArray<any>(t.rounds).map((rd) => {
             if (rd.roundIndex === roundIdx) {
-              const newTasks = [...(rd.tasks || new Array(8).fill(0))];
+              const newTasks = [...toSafeArray<number>(rd.tasks)];
+              if (newTasks.length < 8) {
+                while (newTasks.length < 8) newTasks.push(0);
+              }
               newTasks[taskIdx] = num;
               return { ...rd, tasks: newTasks };
             }
@@ -319,8 +329,8 @@ export const AdminPage: React.FC = () => {
   };
 
   // Calculate live preview rankings inside Admin Portal
-  const liveRankedB_EV3 = calculateRankingsB(formData.teamsB_EV3);
-  const liveRankedB_SPIKE = calculateRankingsB(formData.teamsB_SPIKE);
+  const liveRankedB_EV3 = calculateRankingsB(toSafeArray<TeamB>(formData.teamsB_EV3));
+  const liveRankedB_SPIKE = calculateRankingsB(toSafeArray<TeamB>(formData.teamsB_SPIKE));
 
   const getRankPreview = (teamId: string, rankedList: { id: string; rank: number }[]) => {
     const item = rankedList.find((r) => r.id === teamId);
@@ -911,9 +921,9 @@ export const AdminPage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 {/* BẢNG A */}
                 <div className="bg-slate-950 rounded-xl p-3 sm:p-4 border border-slate-800">
-                  <h4 className="font-orbitron font-extrabold text-[10px] sm:text-xs text-amber-400 mb-2 sm:mb-3 uppercase">Bảng A ({formData.teamsA.length} Đội)</h4>
+                  <h4 className="font-orbitron font-extrabold text-[10px] sm:text-xs text-amber-400 mb-2 sm:mb-3 uppercase">Bảng A ({toSafeArray<TeamA>(formData.teamsA).length} Đội)</h4>
                   <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-                    {formData.teamsA.map((t) => (
+                    {toSafeArray<TeamA>(formData.teamsA).map((t) => (
                       <div key={t.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-900 px-3 py-2 rounded-lg gap-1.5 border border-slate-800">
                         <span className="font-bold text-white font-orbitron">{t.name}</span>
                         <div className="flex items-center gap-1 flex-wrap">
@@ -942,15 +952,15 @@ export const AdminPage: React.FC = () => {
                         </div>
                       </div>
                     ))}
-                    {formData.teamsA.length === 0 && <p className="text-xs text-slate-500">Chưa có đội thi đấu</p>}
+                    {toSafeArray<TeamA>(formData.teamsA).length === 0 && <p className="text-xs text-slate-500">Chưa có đội thi đấu</p>}
                   </div>
                 </div>
 
                 {/* BẢNG B - EV3 */}
                 <div className="bg-slate-950 rounded-xl p-3 sm:p-4 border border-slate-800">
-                  <h4 className="font-orbitron font-extrabold text-[10px] sm:text-xs text-cyan-400 mb-2 sm:mb-3 uppercase">Bảng B - EV3 ({formData.teamsB_EV3.length} Đội)</h4>
+                  <h4 className="font-orbitron font-extrabold text-[10px] sm:text-xs text-cyan-400 mb-2 sm:mb-3 uppercase">Bảng B - EV3 ({toSafeArray<TeamB>(formData.teamsB_EV3).length} Đội)</h4>
                   <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-                    {formData.teamsB_EV3.map((t) => (
+                    {toSafeArray<TeamB>(formData.teamsB_EV3).map((t) => (
                       <div key={t.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-900 px-3 py-2 rounded-lg gap-1.5 border border-slate-800">
                         <span className="font-bold text-white font-orbitron">{t.name}</span>
                         <div className="flex items-center gap-1 flex-wrap">
@@ -979,15 +989,15 @@ export const AdminPage: React.FC = () => {
                         </div>
                       </div>
                     ))}
-                    {formData.teamsB_EV3.length === 0 && <p className="text-xs text-slate-500">Chưa có đội thi đấu</p>}
+                    {toSafeArray<TeamB>(formData.teamsB_EV3).length === 0 && <p className="text-xs text-slate-500">Chưa có đội thi đấu</p>}
                   </div>
                 </div>
 
                 {/* BẢNG B - SPIKE */}
                 <div className="bg-slate-950 rounded-xl p-3 sm:p-4 border border-slate-800">
-                  <h4 className="font-orbitron font-extrabold text-[10px] sm:text-xs text-purple-400 mb-2 sm:mb-3 uppercase">Bảng B - SPIKE ({formData.teamsB_SPIKE.length} Đội)</h4>
+                  <h4 className="font-orbitron font-extrabold text-[10px] sm:text-xs text-purple-400 mb-2 sm:mb-3 uppercase">Bảng B - SPIKE ({toSafeArray<TeamB>(formData.teamsB_SPIKE).length} Đội)</h4>
                   <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-                    {formData.teamsB_SPIKE.map((t) => (
+                    {toSafeArray<TeamB>(formData.teamsB_SPIKE).map((t) => (
                       <div key={t.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-900 px-3 py-2 rounded-lg gap-1.5 border border-slate-800">
                         <span className="font-bold text-white font-orbitron">{t.name}</span>
                         <div className="flex items-center gap-1 flex-wrap">
@@ -1016,15 +1026,15 @@ export const AdminPage: React.FC = () => {
                         </div>
                       </div>
                     ))}
-                    {formData.teamsB_SPIKE.length === 0 && <p className="text-xs text-slate-500">Chưa có đội thi đấu</p>}
+                    {toSafeArray<TeamB>(formData.teamsB_SPIKE).length === 0 && <p className="text-xs text-slate-500">Chưa có đội thi đấu</p>}
                   </div>
                 </div>
 
                 {/* BẢNG C */}
                 <div className="bg-slate-950 rounded-xl p-3 sm:p-4 border border-slate-800">
-                  <h4 className="font-orbitron font-extrabold text-[10px] sm:text-xs text-emerald-400 mb-2 sm:mb-3 uppercase">Bảng C ({formData.teamsC.length} Đội)</h4>
+                  <h4 className="font-orbitron font-extrabold text-[10px] sm:text-xs text-emerald-400 mb-2 sm:mb-3 uppercase">Bảng C ({toSafeArray<TeamC>(formData.teamsC).length} Đội)</h4>
                   <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-                    {formData.teamsC.map((t) => (
+                    {toSafeArray<TeamC>(formData.teamsC).map((t) => (
                       <div key={t.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-900 px-3 py-2 rounded-lg gap-1.5 border border-slate-800">
                         <span className="font-bold text-white font-orbitron">{t.name}</span>
                         <div className="flex items-center gap-1 flex-wrap">
@@ -1053,7 +1063,7 @@ export const AdminPage: React.FC = () => {
                         </div>
                       </div>
                     ))}
-                    {formData.teamsC.length === 0 && <p className="text-xs text-slate-500">Chưa có đội thi đấu</p>}
+                    {toSafeArray<TeamC>(formData.teamsC).length === 0 && <p className="text-xs text-slate-500">Chưa có đội thi đấu</p>}
                   </div>
                 </div>
               </div>
