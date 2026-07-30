@@ -1,0 +1,220 @@
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700;800;900&family=Exo+2:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&family=JetBrains+Mono:wght@600;700;800&display=swap');
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Chakra Petch', sans-serif;
+    background-color: #02081f;
+    color: #ffffff;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.font-orbitron, .font-chakra {
+  font-family: 'Chakra Petch', sans-serif;
+}
+
+.font-exo {
+  font-family: 'Exo 2', sans-serif;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Background Cyber Circuit Glow with Official Robocus 2026 Background Image */
+.bg-scifi-cyber {
+  background-color: #02081f;
+  background-image: 
+    linear-gradient(to bottom, rgba(2, 8, 31, 0.45), rgba(2, 8, 31, 0.75)),
+    url('/bg.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+/* Sci-fi Title Text Glow */
+.text-glow-cyan {
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.8), 0 0 20px rgba(0, 229, 255, 0.4);
+}
+
+.text-glow-gold {
+  text-shadow: 0 0 12px rgba(255, 204, 0, 0.8), 0 0 25px rgba(255, 153, 0, 0.5);
+}
+
+/* Pill Row Gradients */
+.pill-row {
+  border-radius: 9999px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 768px) {
+  .pill-row {
+    border-radius: 20px;
+  }
+}
+
+.pill-row:hover {
+  transform: scale(1.005) translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 229, 255, 0.25);
+}
+
+/* Neutral Rank Pill (Khi đang Auto Xếp Hạng - Ban đầu chưa hiện màu huy chương) */
+.rank-pill-neutral {
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
+  color: #f8fafc !important;
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+.rank-pill-neutral span, .rank-pill-neutral div {
+  color: #f8fafc;
+}
+.rank-pill-neutral .text-amber-300, .rank-pill-neutral .text-amber-400 {
+  color: #fcd34d !important;
+}
+
+/* Rank 1 Styling - Gold */
+.rank-pill-1 {
+  background: linear-gradient(90deg, #ffc82c 0%, #f5a623 50%, #e68a00 100%);
+  color: #000000 !important;
+  border: 2px solid #fff5cc;
+  box-shadow: 0 0 20px rgba(255, 200, 44, 0.4);
+}
+.rank-pill-1 span, .rank-pill-1 div {
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+/* Rank 2 Styling - Silver */
+.rank-pill-2 {
+  background: linear-gradient(90deg, #f0f4f8 0%, #cbd5e1 50%, #94a3b8 100%);
+  color: #000000 !important;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 15px rgba(224, 224, 224, 0.3);
+}
+.rank-pill-2 span, .rank-pill-2 div {
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+/* Rank 3 Styling - Bronze */
+.rank-pill-3 {
+  background: linear-gradient(90deg, #d98236 0%, #b86518 50%, #8f460b 100%);
+  color: #ffffff !important;
+  border: 2px solid #e2a065;
+  box-shadow: 0 0 15px rgba(184, 115, 51, 0.3);
+}
+.rank-pill-3 span, .rank-pill-3 div {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+/* Rank 4+ Styling - Bronze (Đồng) */
+.rank-pill-default {
+  background: linear-gradient(90deg, #d98236 0%, #b86518 50%, #8f460b 100%);
+  color: #ffffff !important;
+  border: 2px solid #e2a065;
+  box-shadow: 0 0 15px rgba(184, 115, 51, 0.3);
+}
+.rank-pill-default span, .rank-pill-default div {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+/* Rank Circle Badges */
+.rank-badge {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 900;
+  font-size: 1.75rem;
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.4), 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 640px) {
+  .rank-badge {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.25rem;
+  }
+}
+
+.rank-badge-1 {
+  background: radial-gradient(circle, #ffe600 0%, #f5a623 100%);
+  color: #1a0f00;
+  border: 3px solid #ffffff;
+}
+
+.rank-badge-2 {
+  background: radial-gradient(circle, #ffffff 0%, #94a3b8 100%);
+  color: #0f172a;
+  border: 3px solid #ffffff;
+}
+
+.rank-badge-3 {
+  background: radial-gradient(circle, #e2a065 0%, #7c4111 100%);
+  color: #ffffff;
+  border: 3px solid #ffd1a4;
+}
+
+.rank-badge-default {
+  background: radial-gradient(circle, #d97706 0%, #78350f 100%);
+  color: #ffffff;
+  border: 2px solid #f59e0b;
+}
+
+/* Highlighting Best Round Score in Group B */
+.best-round-highlight {
+  background-color: rgba(255, 204, 0, 0.25);
+  border: 2px solid #ffcc00;
+  border-radius: 8px;
+  font-weight: 800;
+  color: #ffeb3b;
+  text-shadow: 0 0 8px rgba(255, 235, 59, 0.8);
+  animation: pulse-glow 2s infinite alternate;
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 5px rgba(255, 204, 0, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(255, 204, 0, 0.9);
+  }
+}
+
+/* Hide Scrollbar for Horizontal Touch Swiping */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom Scrollbar for Sci-Fi theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #02081f;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #00e5ff;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #38bdf8;
+}
