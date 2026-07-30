@@ -48,16 +48,22 @@ class SyncManager {
     if (!db) return;
     try {
       const dbRef = ref(db, 'leaderboard_data');
-      onValue(dbRef, (snapshot) => {
-        try {
-          const remoteData = snapshot.val();
-          if (remoteData) {
-            this.updateLocalState(remoteData);
+      onValue(
+        dbRef,
+        (snapshot) => {
+          try {
+            const remoteData = snapshot.val();
+            if (remoteData) {
+              this.updateLocalState(remoteData);
+            }
+          } catch (e) {
+            console.warn('Error processing Firebase snapshot:', e);
           }
-        } catch (e) {
-          console.warn('Error processing Firebase snapshot:', e);
+        },
+        (error) => {
+          console.warn('Firebase subscription error (permission denied or network):', error);
         }
-      });
+      );
     } catch (e) {
       console.warn('Firebase Realtime Sync warning:', e);
     }
