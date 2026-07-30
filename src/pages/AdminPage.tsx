@@ -59,6 +59,33 @@ export const AdminPage: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
+  // Auto-generate second leg matches for Bảng C when missing
+  useEffect(() => {
+    const allMatches = toSafeArray<MatchResultC>(formData.matchesC);
+    const diMatches = allMatches.filter((m) => (m.leg || 1) === 1);
+    if (diMatches.length === 0) return;
+    const existingVeIds = new Set(allMatches.filter((m) => m.leg === 2).map((m) => m.id));
+    const newVeMatches = diMatches
+      .map((m) => ({
+        id: `${m.id}b`,
+        team1Id: m.team2Id,
+        team2Id: m.team1Id,
+        score1: 0,
+        score2: 0,
+        isCompleted: false,
+        leg: 2 as const,
+      }))
+      .filter((m) => !existingVeIds.has(m.id));
+    if (newVeMatches.length === 0) return;
+    // Auto-save the new second leg matches
+    const updated: CompetitionData = {
+      ...formData,
+      matchesC: [...allMatches, ...newVeMatches],
+    };
+    commitData(updated);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.matchesC]);
+
   // Handle PIN authentication
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -812,40 +839,6 @@ export const AdminPage: React.FC = () => {
                     Nhập tỷ số cho từng trận — Lượt Đi &amp; Lượt Về tính riêng biệt vào bảng xếp hạng.
                   </span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const diMatches = toSafeArray<MatchResultC>(formData.matchesC).filter((m) => (m.leg || 1) === 1);
-                    const existingVeIds = new Set(
-                      toSafeArray<MatchResultC>(formData.matchesC)
-                        .filter((m) => m.leg === 2)
-                        .map((m) => m.id)
-                    );
-                    const newVeMatches = diMatches
-                      .map((m) => ({
-                        id: `${m.id}b`,
-                        team1Id: m.team2Id,
-                        team2Id: m.team1Id,
-                        score1: 0,
-                        score2: 0,
-                        isCompleted: false,
-                        leg: 2 as const,
-                      }))
-                      .filter((m) => !existingVeIds.has(m.id));
-                    if (newVeMatches.length === 0) {
-                      alert('Tất cả trận lượt về đã được tạo!');
-                      return;
-                    }
-                    const updated: CompetitionData = {
-                      ...formData,
-                      matchesC: [...toSafeArray<MatchResultC>(formData.matchesC), ...newVeMatches],
-                    };
-                    commitData(updated);
-                  }}
-                  className="flex items-center gap-1.5 bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 font-orbitron font-bold text-[10px] sm:text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-emerald-500/40 transition whitespace-nowrap"
-                >
-                  ➕ TẠO LƯỢT VỀ TỪ LƯỢT ĐI
-                </button>
               </div>
 
               {toSafeArray<MatchResultC>(formData.matchesC).length === 0 && formData.teamsC.length === 0 ? (
@@ -936,9 +929,8 @@ export const AdminPage: React.FC = () => {
                   </div>
 
                   {/* LƯỢT VỀ */}
-                  {toSafeArray<MatchResultC>(formData.matchesC).some((m) => m.leg === 2) && (
-                    <div className="space-y-2.5 sm:space-y-3">
-                      <div className="flex items-center gap-2">
+                  <div className="space-y-2.5 sm:space-y-3">
+                    <div className="flex items-center gap-2">
                         <span className="text-[10px] sm:text-xs font-orbitron font-extrabold text-cyan-400 uppercase tracking-widest bg-cyan-400/10 px-2.5 py-1 rounded-full border border-cyan-400/30">
                           🔄 LƯỢT VỀ
                         </span>
@@ -1009,8 +1001,7 @@ export const AdminPage: React.FC = () => {
                             </div>
                           );
                         })}
-                    </div>
-                  )}
+                  </div>
                 </div>
               )}
             </div>
