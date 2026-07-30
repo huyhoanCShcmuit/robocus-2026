@@ -81,11 +81,18 @@ export const INITIAL_COMPETITION_DATA: CompetitionData = {
     { id: 'c5', name: 'C05', division: 'C' },
   ],
   matchesC: [
-    { id: 'mc1', team1Id: 'c1', team2Id: 'c2', score1: 0, score2: 0, isCompleted: false },
-    { id: 'mc2', team1Id: 'c3', team2Id: 'c4', score1: 0, score2: 0, isCompleted: false },
-    { id: 'mc3', team1Id: 'c1', team2Id: 'c3', score1: 0, score2: 0, isCompleted: false },
-    { id: 'mc4', team1Id: 'c2', team2Id: 'c5', score1: 0, score2: 0, isCompleted: false },
-    { id: 'mc5', team1Id: 'c4', team2Id: 'c5', score1: 0, score2: 0, isCompleted: false },
+    // Lượt đi
+    { id: 'mc1', team1Id: 'c1', team2Id: 'c2', score1: 0, score2: 0, isCompleted: false, leg: 1 },
+    { id: 'mc2', team1Id: 'c3', team2Id: 'c4', score1: 0, score2: 0, isCompleted: false, leg: 1 },
+    { id: 'mc3', team1Id: 'c1', team2Id: 'c3', score1: 0, score2: 0, isCompleted: false, leg: 1 },
+    { id: 'mc4', team1Id: 'c2', team2Id: 'c5', score1: 0, score2: 0, isCompleted: false, leg: 1 },
+    { id: 'mc5', team1Id: 'c4', team2Id: 'c5', score1: 0, score2: 0, isCompleted: false, leg: 1 },
+    // Lượt về (đội 1 & 2 đổi vai — vẫn tính đúng theo rankingEngine)
+    { id: 'mc1b', team1Id: 'c2', team2Id: 'c1', score1: 0, score2: 0, isCompleted: false, leg: 2 },
+    { id: 'mc2b', team1Id: 'c4', team2Id: 'c3', score1: 0, score2: 0, isCompleted: false, leg: 2 },
+    { id: 'mc3b', team1Id: 'c3', team2Id: 'c1', score1: 0, score2: 0, isCompleted: false, leg: 2 },
+    { id: 'mc4b', team1Id: 'c5', team2Id: 'c2', score1: 0, score2: 0, isCompleted: false, leg: 2 },
+    { id: 'mc5b', team1Id: 'c5', team2Id: 'c4', score1: 0, score2: 0, isCompleted: false, leg: 2 },
   ],
 
   lastUpdated: Date.now(),

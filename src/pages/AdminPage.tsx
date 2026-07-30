@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { CompetitionData, TeamA, TeamB, TeamC } from '../types';
+import type { CompetitionData, TeamA, TeamB, TeamC, MatchResultC } from '../types';
 import { syncManager } from '../utils/syncManager';
 import { calculateRankingsB } from '../utils/rankingEngine';
 import { toSafeArray } from '../utils/safeArray';
@@ -803,11 +803,52 @@ export const AdminPage: React.FC = () => {
           {/* BẢNG C */}
           {activeTab === 'C' && (
             <div className="space-y-3 sm:space-y-4">
-              <h3 className="text-cyan-400 font-orbitron font-extrabold text-sm sm:text-base border-b border-slate-800 pb-3">
-                KẾT QUẢ BẢNG C (1v1)
-              </h3>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800 pb-3 gap-2">
+                <div>
+                  <h3 className="text-cyan-400 font-orbitron font-extrabold text-sm sm:text-base">
+                    KẾT QUẢ BẢNG C (1v1)
+                  </h3>
+                  <span className="text-[10px] sm:text-xs text-slate-400 font-mono">
+                    Nhập tỷ số cho từng trận — Lượt Đi &amp; Lượt Về tính riêng biệt vào bảng xếp hạng.
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const diMatches = toSafeArray<MatchResultC>(formData.matchesC).filter((m) => (m.leg || 1) === 1);
+                    const existingVeIds = new Set(
+                      toSafeArray<MatchResultC>(formData.matchesC)
+                        .filter((m) => m.leg === 2)
+                        .map((m) => m.id)
+                    );
+                    const newVeMatches = diMatches
+                      .map((m) => ({
+                        id: `${m.id}b`,
+                        team1Id: m.team2Id,
+                        team2Id: m.team1Id,
+                        score1: 0,
+                        score2: 0,
+                        isCompleted: false,
+                        leg: 2 as const,
+                      }))
+                      .filter((m) => !existingVeIds.has(m.id));
+                    if (newVeMatches.length === 0) {
+                      alert('Tất cả trận lượt về đã được tạo!');
+                      return;
+                    }
+                    const updated: CompetitionData = {
+                      ...formData,
+                      matchesC: [...toSafeArray<MatchResultC>(formData.matchesC), ...newVeMatches],
+                    };
+                    commitData(updated);
+                  }}
+                  className="flex items-center gap-1.5 bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 font-orbitron font-bold text-[10px] sm:text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-emerald-500/40 transition whitespace-nowrap"
+                >
+                  ➕ TẠO LƯỢT VỀ TỪ LƯỢT ĐI
+                </button>
+              </div>
 
-              {formData.matchesC.length === 0 && formData.teamsC.length === 0 ? (
+              {toSafeArray<MatchResultC>(formData.matchesC).length === 0 && formData.teamsC.length === 0 ? (
                 <div className="text-center py-12 text-slate-400 space-y-3">
                   <p className="text-sm sm:text-base font-orbitron">Bảng C chưa có đội thi đấu nào.</p>
                   <button
@@ -818,72 +859,163 @@ export const AdminPage: React.FC = () => {
                   </button>
                 </div>
               ) : (
-                <div className="space-y-2.5 sm:space-y-3">
-                  {formData.matchesC.map((match) => {
-                    const t1 = formData.teamsC.find((t) => t.id === match.team1Id);
-                    const t2 = formData.teamsC.find((t) => t.id === match.team2Id);
-                    return (
-                      <div key={match.id} className="flex items-center justify-between bg-slate-950 p-2.5 sm:p-3.5 rounded-xl border border-slate-800 gap-2">
-                        <span className="font-orbitron font-extrabold text-white text-xs sm:text-base w-24 sm:w-40 text-right truncate">{t1?.name || match.team1Id}</span>
-                        
-                        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-                          <input
-                            type="number"
-                            min="0"
-                            value={match.score1}
-                            onChange={(e) => {
-                              const val = Math.max(0, parseInt(e.target.value) || 0);
-                              const updated: CompetitionData = {
-                                ...formData,
-                                matchesC: formData.matchesC.map((m) => (m.id === match.id ? { ...m, score1: val, isCompleted: true } : m)),
-                              };
-                              commitData(updated);
-                            }}
-                            className="w-14 sm:w-20 bg-slate-900 border border-cyan-500/40 rounded-lg py-1.5 sm:py-2 text-center font-mono font-black text-xl sm:text-2xl text-yellow-300"
-                          />
-                          <span className="font-orbitron font-black text-slate-500 text-lg sm:text-xl">-</span>
-                          <input
-                            type="number"
-                            min="0"
-                            value={match.score2}
-                            onChange={(e) => {
-                              const val = Math.max(0, parseInt(e.target.value) || 0);
-                              const updated: CompetitionData = {
-                                ...formData,
-                                matchesC: formData.matchesC.map((m) => (m.id === match.id ? { ...m, score2: val, isCompleted: true } : m)),
-                              };
-                              commitData(updated);
-                            }}
-                            className="w-14 sm:w-20 bg-slate-900 border border-cyan-500/40 rounded-lg py-1.5 sm:py-2 text-center font-mono font-black text-xl sm:text-2xl text-yellow-300"
-                          />
+                <div className="space-y-6">
+                  {/* LƯỢT ĐI */}
+                  <div className="space-y-2.5 sm:space-y-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] sm:text-xs font-orbitron font-extrabold text-amber-400 uppercase tracking-widest bg-amber-400/10 px-2.5 py-1 rounded-full border border-amber-400/30">
+                        🏁 LƯỢT ĐI
+                      </span>
+                    </div>
+                    {toSafeArray<MatchResultC>(formData.matchesC)
+                      .filter((m) => (m.leg || 1) === 1)
+                      .map((match) => {
+                        const t1 = formData.teamsC.find((t) => t.id === match.team1Id);
+                        const t2 = formData.teamsC.find((t) => t.id === match.team2Id);
+                        return (
+                          <div key={match.id} className="flex items-center justify-between bg-slate-950 p-2.5 sm:p-3.5 rounded-xl border border-amber-500/20 gap-2">
+                            <span className="font-orbitron font-extrabold text-white text-xs sm:text-base w-24 sm:w-40 text-right truncate">{t1?.name || match.team1Id}</span>
+                            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+                              <input
+                                type="number"
+                                min="0"
+                                value={match.score1}
+                                onChange={(e) => {
+                                  const val = Math.max(0, parseInt(e.target.value) || 0);
+                                  const updated: CompetitionData = {
+                                    ...formData,
+                                    matchesC: toSafeArray<MatchResultC>(formData.matchesC).map((m) =>
+                                      m.id === match.id ? { ...m, score1: val, isCompleted: true } : m
+                                    ),
+                                  };
+                                  commitData(updated);
+                                }}
+                                className="w-14 sm:w-20 bg-slate-900 border border-amber-500/40 rounded-lg py-1.5 sm:py-2 text-center font-mono font-black text-xl sm:text-2xl text-yellow-300"
+                              />
+                              <span className="font-orbitron font-black text-slate-500 text-lg sm:text-xl">-</span>
+                              <input
+                                type="number"
+                                min="0"
+                                value={match.score2}
+                                onChange={(e) => {
+                                  const val = Math.max(0, parseInt(e.target.value) || 0);
+                                  const updated: CompetitionData = {
+                                    ...formData,
+                                    matchesC: toSafeArray<MatchResultC>(formData.matchesC).map((m) =>
+                                      m.id === match.id ? { ...m, score2: val, isCompleted: true } : m
+                                    ),
+                                  };
+                                  commitData(updated);
+                                }}
+                                className="w-14 sm:w-20 bg-slate-900 border border-amber-500/40 rounded-lg py-1.5 sm:py-2 text-center font-mono font-black text-xl sm:text-2xl text-yellow-300"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updated: CompetitionData = {
+                                    ...formData,
+                                    matchesC: toSafeArray<MatchResultC>(formData.matchesC).map((m) =>
+                                      m.id === match.id ? { ...m, isCompleted: !m.isCompleted } : m
+                                    ),
+                                  };
+                                  commitData(updated);
+                                }}
+                                className={`px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold transition ${
+                                  match.isCompleted
+                                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                                    : 'bg-slate-800 text-slate-400 border border-slate-700'
+                                }`}
+                              >
+                                {match.isCompleted ? '✅ ĐÃ ĐẤU' : '⏳ CHƯA ĐẤU'}
+                              </button>
+                            </div>
+                            <span className="font-orbitron font-extrabold text-white text-xs sm:text-base w-24 sm:w-40 text-left truncate">{t2?.name || match.team2Id}</span>
+                          </div>
+                        );
+                      })}
+                  </div>
 
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const updated: CompetitionData = {
-                                ...formData,
-                                matchesC: formData.matchesC.map((m) => (m.id === match.id ? { ...m, isCompleted: !m.isCompleted } : m)),
-                              };
-                              commitData(updated);
-                            }}
-                            className={`px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold transition ${
-                              match.isCompleted
-                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                                : 'bg-slate-800 text-slate-400 border border-slate-700'
-                            }`}
-                          >
-                            {match.isCompleted ? '✅ ĐÃ ĐẤU' : '⏳ CHƯA ĐẤU'}
-                          </button>
-                        </div>
-
-                        <span className="font-orbitron font-extrabold text-white text-xs sm:text-base w-24 sm:w-40 text-left truncate">{t2?.name || match.team2Id}</span>
+                  {/* LƯỢT VỀ */}
+                  {toSafeArray<MatchResultC>(formData.matchesC).some((m) => m.leg === 2) && (
+                    <div className="space-y-2.5 sm:space-y-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] sm:text-xs font-orbitron font-extrabold text-cyan-400 uppercase tracking-widest bg-cyan-400/10 px-2.5 py-1 rounded-full border border-cyan-400/30">
+                          🔄 LƯỢT VỀ
+                        </span>
                       </div>
-                    );
-                  })}
+                      {toSafeArray<MatchResultC>(formData.matchesC)
+                        .filter((m) => m.leg === 2)
+                        .map((match) => {
+                          const t1 = formData.teamsC.find((t) => t.id === match.team1Id);
+                          const t2 = formData.teamsC.find((t) => t.id === match.team2Id);
+                          return (
+                            <div key={match.id} className="flex items-center justify-between bg-slate-950 p-2.5 sm:p-3.5 rounded-xl border border-cyan-500/20 gap-2">
+                              <span className="font-orbitron font-extrabold text-white text-xs sm:text-base w-24 sm:w-40 text-right truncate">{t1?.name || match.team1Id}</span>
+                              <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={match.score1}
+                                  onChange={(e) => {
+                                    const val = Math.max(0, parseInt(e.target.value) || 0);
+                                    const updated: CompetitionData = {
+                                      ...formData,
+                                      matchesC: toSafeArray<MatchResultC>(formData.matchesC).map((m) =>
+                                        m.id === match.id ? { ...m, score1: val, isCompleted: true } : m
+                                      ),
+                                    };
+                                    commitData(updated);
+                                  }}
+                                  className="w-14 sm:w-20 bg-slate-900 border border-cyan-500/40 rounded-lg py-1.5 sm:py-2 text-center font-mono font-black text-xl sm:text-2xl text-cyan-300"
+                                />
+                                <span className="font-orbitron font-black text-slate-500 text-lg sm:text-xl">-</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={match.score2}
+                                  onChange={(e) => {
+                                    const val = Math.max(0, parseInt(e.target.value) || 0);
+                                    const updated: CompetitionData = {
+                                      ...formData,
+                                      matchesC: toSafeArray<MatchResultC>(formData.matchesC).map((m) =>
+                                        m.id === match.id ? { ...m, score2: val, isCompleted: true } : m
+                                      ),
+                                    };
+                                    commitData(updated);
+                                  }}
+                                  className="w-14 sm:w-20 bg-slate-900 border border-cyan-500/40 rounded-lg py-1.5 sm:py-2 text-center font-mono font-black text-xl sm:text-2xl text-cyan-300"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updated: CompetitionData = {
+                                      ...formData,
+                                      matchesC: toSafeArray<MatchResultC>(formData.matchesC).map((m) =>
+                                        m.id === match.id ? { ...m, isCompleted: !m.isCompleted } : m
+                                      ),
+                                    };
+                                    commitData(updated);
+                                  }}
+                                  className={`px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold transition ${
+                                    match.isCompleted
+                                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                                      : 'bg-slate-800 text-slate-400 border border-slate-700'
+                                  }`}
+                                >
+                                  {match.isCompleted ? '✅ ĐÃ ĐẤU' : '⏳ CHƯA ĐẤU'}
+                                </button>
+                              </div>
+                              <span className="font-orbitron font-extrabold text-white text-xs sm:text-base w-24 sm:w-40 text-left truncate">{t2?.name || match.team2Id}</span>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           )}
+
 
           {/* TEAMS */}
           {activeTab === 'TEAMS' && (

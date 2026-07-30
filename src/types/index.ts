@@ -63,6 +63,7 @@ export interface MatchResultC {
   score1: number;
   score2: number;
   isCompleted: boolean;
+  leg?: 1 | 2; // 1 = lượt đi, 2 = lượt về (undefined = lượt đi for backwards compat)
 }
 
 export interface TeamC extends BaseTeam {
