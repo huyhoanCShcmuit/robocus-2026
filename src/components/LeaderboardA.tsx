@@ -7,7 +7,9 @@ interface LeaderboardAProps {
   autoRankingEnabled?: boolean;
 }
 
-export const LeaderboardA: React.FC<LeaderboardAProps> = ({ teams, autoRankingEnabled = true }) => {
+export const LeaderboardA: React.FC<LeaderboardAProps> = ({ teams = [], autoRankingEnabled = true }) => {
+  const safeTeams = teams || [];
+
   const getPillClass = (team: RankedTeamA) => {
     if (autoRankingEnabled) {
       return 'rank-pill-neutral';
@@ -43,8 +45,9 @@ export const LeaderboardA: React.FC<LeaderboardAProps> = ({ teams, autoRankingEn
           {/* Pill Rows */}
           <div className="space-y-3 relative">
             <AnimatePresence mode="popLayout">
-              {teams.map((team) => {
-                const playedMatches = team.scores.filter((s) => s !== null && s !== undefined).length;
+              {safeTeams.map((team) => {
+                const scores = team.scores || [];
+                const playedMatches = scores.filter((s) => s !== null && s !== undefined).length;
                 return (
                   <motion.div
                     key={team.id}
@@ -76,19 +79,19 @@ export const LeaderboardA: React.FC<LeaderboardAProps> = ({ teams, autoRankingEn
 
                       {/* Số trận thắng */}
                       <div className="w-20 sm:w-28 text-center font-orbitron font-bold text-base sm:text-lg">
-                        {team.wins}
+                        {team.wins || 0}
                       </div>
 
                       {/* Total Score */}
                       <div className="w-20 sm:w-28 text-center font-orbitron font-bold text-base sm:text-lg">
-                        {team.totalScore}
+                        {team.totalScore || 0}
                       </div>
                     </div>
 
                     {/* Match Scores TRẬN 1..8 */}
                     <div className="flex-1 grid grid-cols-8 gap-1 text-center font-mono font-bold text-base sm:text-lg">
                       {Array.from({ length: 8 }).map((_, idx) => {
-                        const score = team.scores[idx];
+                        const score = scores[idx];
                         return (
                           <div
                             key={idx}
@@ -104,7 +107,7 @@ export const LeaderboardA: React.FC<LeaderboardAProps> = ({ teams, autoRankingEn
               })}
             </AnimatePresence>
 
-            {teams.length === 0 && (
+            {safeTeams.length === 0 && (
               <div className="text-center py-12 text-slate-400 font-orbitron text-base sm:text-lg">
                 Chưa có dữ liệu đội thi đấu Bảng A
               </div>

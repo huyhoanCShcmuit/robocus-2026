@@ -7,7 +7,9 @@ interface LeaderboardCProps {
   autoRankingEnabled?: boolean;
 }
 
-export const LeaderboardC: React.FC<LeaderboardCProps> = ({ teams, autoRankingEnabled = true }) => {
+export const LeaderboardC: React.FC<LeaderboardCProps> = ({ teams = [], autoRankingEnabled = true }) => {
+  const safeTeams = teams || [];
+
   const getPillClass = (team: RankedTeamC) => {
     if (autoRankingEnabled) {
       return 'rank-pill-neutral';
@@ -39,7 +41,7 @@ export const LeaderboardC: React.FC<LeaderboardCProps> = ({ teams, autoRankingEn
           {/* Pill Rows */}
           <div className="space-y-3.5 relative">
             <AnimatePresence mode="popLayout">
-              {teams.map((team) => (
+              {safeTeams.map((team) => (
                 <motion.div
                   key={team.id}
                   layout
@@ -61,50 +63,50 @@ export const LeaderboardC: React.FC<LeaderboardCProps> = ({ teams, autoRankingEn
 
                   {/* 2. Số trận */}
                   <div className="flex-1 text-center">
-                    {team.matchesPlayed}
+                    {team.matchesPlayed || 0}
                   </div>
 
                   {/* 3. Tổng điểm */}
                   <div className="flex-1 text-center font-black text-cyan-300">
-                    {team.points}
+                    {team.points || 0}
                   </div>
 
                   {/* 4. Số trận thắng */}
                   <div className="flex-1 text-center text-emerald-400">
-                    {team.wins}
+                    {team.wins || 0}
                   </div>
 
                   {/* 5. Số trận hòa */}
                   <div className="flex-1 text-center text-amber-300">
-                    {team.draws}
+                    {team.draws || 0}
                   </div>
 
                   {/* 6. Số trận thua */}
                   <div className="flex-1 text-center text-rose-400">
-                    {team.losses}
+                    {team.losses || 0}
                   </div>
 
                   {/* 7. Số bàn thắng */}
                   <div className="flex-1 text-center">
-                    {team.goalsFor}
+                    {team.goalsFor || 0}
                   </div>
 
                   {/* 8. Số bàn thua */}
                   <div className="flex-1 text-center">
-                    {team.goalsAgainst}
+                    {team.goalsAgainst || 0}
                   </div>
 
                   {/* 9. Hiệu số */}
                   <div className="flex-1 text-center font-black">
-                    {team.goalDifference > 0
+                    {(team.goalDifference || 0) > 0
                       ? `+${team.goalDifference}`
-                      : team.goalDifference}
+                      : (team.goalDifference || 0)}
                   </div>
                 </motion.div>
               ))}
             </AnimatePresence>
 
-            {teams.length === 0 && (
+            {safeTeams.length === 0 && (
               <div className="text-center py-12 text-slate-400 font-orbitron text-base sm:text-lg">
                 Chưa có dữ liệu đội thi đấu Bảng C
               </div>

@@ -7,7 +7,9 @@ interface LeaderboardBProps {
   autoRankingEnabled?: boolean;
 }
 
-export const LeaderboardB: React.FC<LeaderboardBProps> = ({ teams, autoRankingEnabled = true }) => {
+export const LeaderboardB: React.FC<LeaderboardBProps> = ({ teams = [], autoRankingEnabled = true }) => {
+  const safeTeams = teams || [];
+
   const getPillClass = (team: RankedTeamB) => {
     if (autoRankingEnabled) {
       return 'rank-pill-neutral';
@@ -18,7 +20,7 @@ export const LeaderboardB: React.FC<LeaderboardBProps> = ({ teams, autoRankingEn
     return 'rank-pill-neutral';
   };
 
-  const isCompact = teams.length > 5;
+  const isCompact = safeTeams.length > 5;
   const rowSpacing = isCompact ? 'space-y-2 sm:space-y-2.5' : 'space-y-3.5 sm:space-y-4.5';
   const rowPadding = isCompact ? 'py-1.5 sm:py-2' : 'py-3 sm:py-3.5';
 
@@ -48,8 +50,10 @@ export const LeaderboardB: React.FC<LeaderboardBProps> = ({ teams, autoRankingEn
           {/* Pill Rows */}
           <div className={`${rowSpacing} relative`}>
             <AnimatePresence mode="popLayout">
-              {teams.map((team) => {
-                const roundsPlayed = team.rounds.filter((r) => r.tasks.some((val) => val > 0)).length;
+              {safeTeams.map((team) => {
+                const rounds = team.rounds || [];
+                const taskMaxScores = team.taskMaxScores || [];
+                const roundsPlayed = rounds.filter((r) => (r.tasks || []).some((val) => val > 0)).length;
 
                 return (
                   <motion.div
@@ -82,24 +86,24 @@ export const LeaderboardB: React.FC<LeaderboardBProps> = ({ teams, autoRankingEn
 
                       {/* 3. Tổng Điểm */}
                       <div className="w-24 sm:w-32 text-center font-orbitron font-bold text-base sm:text-lg">
-                        {team.totalScore}
+                        {team.totalScore || 0}
                       </div>
 
                       {/* 4. Số nhiệm vụ hoàn thành */}
                       <div className="w-28 sm:w-40 text-center font-orbitron font-bold text-base sm:text-lg">
-                        {team.completedTasksCount}
+                        {team.completedTasksCount || 0}
                       </div>
 
                       {/* 5. Điểm lượt cao nhất */}
                       <div className="w-28 sm:w-44 text-center font-orbitron font-bold text-base sm:text-lg">
-                        {team.maxRoundScore}
+                        {team.maxRoundScore || 0}
                       </div>
                     </div>
 
                     {/* 6. Nhiệm vụ 1 -> 8 */}
                     <div className="flex-1 grid grid-cols-8 gap-2 text-center font-mono font-bold text-base sm:text-lg">
                       {Array.from({ length: 8 }).map((_, idx) => {
-                        const score = team.taskMaxScores[idx];
+                        const score = taskMaxScores[idx];
                         return (
                           <div
                             key={idx}
@@ -115,7 +119,7 @@ export const LeaderboardB: React.FC<LeaderboardBProps> = ({ teams, autoRankingEn
               })}
             </AnimatePresence>
 
-            {teams.length === 0 && (
+            {safeTeams.length === 0 && (
               <div className="text-center py-12 text-slate-400 font-orbitron text-base sm:text-lg">
                 Chưa có dữ liệu đội thi đấu Bảng B
               </div>
