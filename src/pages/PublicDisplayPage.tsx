@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { DivisionId, CompetitionData } from '../types';
 import { syncManager } from '../utils/syncManager';
 import { calculateRankingsA, calculateRankingsB, calculateRankingsC } from '../utils/rankingEngine';
@@ -8,11 +8,19 @@ import { LeaderboardB } from '../components/LeaderboardB';
 import { LeaderboardC } from '../components/LeaderboardC';
 import { Clock, Sparkles, Maximize, Minimize, ShieldCheck } from 'lucide-react';
 
+const DIVISIONS: DivisionId[] = ['A', 'B_EV3', 'B_SPIKE', 'C'];
+const AUTO_SWITCH_MS = 15000; // 15 seconds
+
 export const PublicDisplayPage: React.FC = () => {
   const [data, setData] = useState<CompetitionData>(syncManager.loadData());
   const [activeDivision, setActiveDivision] = useState<DivisionId>('A');
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [timeStr, setTimeStr] = useState<string>('');
+  const [countdown, setCountdown] = useState<number>(AUTO_SWITCH_MS); // ms remaining
+  const countdownRef = useRef<number>(AUTO_SWITCH_MS);
+  const lastTickRef = useRef<number>(Date.now());
+  const rotateTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const countdownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Subscribe to real-time updates from syncManager
   useEffect(() => {
@@ -33,16 +41,86 @@ export const PublicDisplayPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Listen for native fullscreen exit (Esc key)
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
+
+  // Auto-rotate divisions when fullscreen
+  useEffect(() => {
+    if (!isFullscreen) {
+      // Clear timers when exiting fullscreen
+      if (rotateTimerRef.current) clearInterval(rotateTimerRef.current);
+      if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
+      rotateTimerRef.current = null;
+      countdownTimerRef.current = null;
+      setCountdown(AUTO_SWITCH_MS);
+      return;
+    }
+
+    // Reset countdown when fullscreen starts
+    countdownRef.current = AUTO_SWITCH_MS;
+    lastTickRef.current = Date.now();
+    setCountdown(AUTO_SWITCH_MS);
+
+    // Rotate division every AUTO_SWITCH_MS
+    rotateTimerRef.current = setInterval(() => {
+      setActiveDivision((prev) => {
+        const idx = DIVISIONS.indexOf(prev);
+        return DIVISIONS[(idx + 1) % DIVISIONS.length];
+      });
+      countdownRef.current = AUTO_SWITCH_MS;
+      lastTickRef.current = Date.now();
+      setCountdown(AUTO_SWITCH_MS);
+    }, AUTO_SWITCH_MS);
+
+    // Smooth countdown every 100ms
+    countdownTimerRef.current = setInterval(() => {
+      const now = Date.now();
+      const elapsed = now - lastTickRef.current;
+      const remaining = Math.max(0, AUTO_SWITCH_MS - elapsed);
+      setCountdown(remaining);
+    }, 100);
+
+    return () => {
+      if (rotateTimerRef.current) clearInterval(rotateTimerRef.current);
+      if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
+    };
+  }, [isFullscreen]);
+
+  // Manual tab change resets the countdown too
+  const handleDivisionChange = (div: DivisionId) => {
+    setActiveDivision(div);
+    if (isFullscreen) {
+      countdownRef.current = AUTO_SWITCH_MS;
+      lastTickRef.current = Date.now();
+      setCountdown(AUTO_SWITCH_MS);
+      // Restart rotate timer so it counts 15s from now
+      if (rotateTimerRef.current) clearInterval(rotateTimerRef.current);
+      rotateTimerRef.current = setInterval(() => {
+        setActiveDivision((prev) => {
+          const idx = DIVISIONS.indexOf(prev);
+          return DIVISIONS[(idx + 1) % DIVISIONS.length];
+        });
+        countdownRef.current = AUTO_SWITCH_MS;
+        lastTickRef.current = Date.now();
+        setCountdown(AUTO_SWITCH_MS);
+      }, AUTO_SWITCH_MS);
+    }
+  };
+
   // Toggle Fullscreen
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch((err) => console.error(err));
-      setIsFullscreen(true);
     } else {
       if (document.exitFullscreen) {
         document.exitFullscreen();
       }
-      setIsFullscreen(false);
     }
   };
 
@@ -56,24 +134,43 @@ export const PublicDisplayPage: React.FC = () => {
 
   const getDivisionTitle = () => {
     switch (activeDivision) {
-      case 'A':
-        return 'BẢNG A';
-      case 'B_EV3':
-        return 'BẢNG B - MINDSTORMS EV3';
-      case 'B_SPIKE':
-        return 'BẢNG B - SPIKE PRIME';
-      case 'C':
-        return 'BẢNG C';
-      default:
-        return 'BẢNG XẾP HẠNG';
+      case 'A': return 'BẢNG A';
+      case 'B_EV3': return 'BẢNG B - MINDSTORMS EV3';
+      case 'B_SPIKE': return 'BẢNG B - SPIKE PRIME';
+      case 'C': return 'BẢNG C';
+      default: return 'BẢNG XẾP HẠNG';
     }
   };
+
+  const getNextDivisionLabel = () => {
+    const idx = DIVISIONS.indexOf(activeDivision);
+    const next = DIVISIONS[(idx + 1) % DIVISIONS.length];
+    switch (next) {
+      case 'A': return 'BẢNG A';
+      case 'B_EV3': return 'B - EV3';
+      case 'B_SPIKE': return 'B - SPIKE';
+      case 'C': return 'BẢNG C';
+    }
+  };
+
+  const progressPct = (countdown / AUTO_SWITCH_MS) * 100;
+  const secondsLeft = Math.ceil(countdown / 1000);
 
   return (
     <div className="min-h-screen bg-scifi-cyber text-white flex flex-col justify-between selection:bg-cyan-500 selection:text-slate-950 font-sans relative overflow-hidden">
       {/* Background Cyber Accents */}
       <div className="fixed top-0 left-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none z-0"></div>
       <div className="fixed bottom-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none z-0"></div>
+
+      {/* Auto-rotate Progress Bar (only in fullscreen) */}
+      {isFullscreen && (
+        <div className="fixed top-0 left-0 w-full z-50 h-1 bg-slate-800">
+          <div
+            className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 transition-none"
+            style={{ width: `${progressPct}%` }}
+          />
+        </div>
+      )}
 
       {/* Header Bar */}
       <header className="w-full relative z-20 pt-3 sm:pt-4 pb-2 px-3 sm:px-6 flex flex-col items-center">
@@ -97,7 +194,7 @@ export const PublicDisplayPage: React.FC = () => {
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveDivision(tab.id as DivisionId)}
+                onClick={() => handleDivisionChange(tab.id as DivisionId)}
                 className={`px-3 sm:px-4 py-1.5 rounded-lg font-orbitron font-extrabold text-xs whitespace-nowrap transition-all duration-300 ${
                   activeDivision === tab.id
                     ? 'bg-cyan-500 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.8)] scale-105'
@@ -148,6 +245,15 @@ export const PublicDisplayPage: React.FC = () => {
         {activeDivision === 'B_SPIKE' && <LeaderboardB teams={rankedB_SPIKE} autoRankingEnabled={autoRankingEnabled} />}
         {activeDivision === 'C' && <LeaderboardC teams={rankedC} autoRankingEnabled={autoRankingEnabled} />}
       </main>
+
+      {/* Auto-rotate Next Board Indicator (only in fullscreen) */}
+      {isFullscreen && (
+        <div className="fixed bottom-16 sm:bottom-20 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 bg-slate-950/90 border border-cyan-500/40 backdrop-blur px-4 py-2 rounded-full shadow-2xl text-xs font-orbitron">
+          <span className="text-slate-400">TIẾP THEO:</span>
+          <span className="text-cyan-300 font-extrabold">{getNextDivisionLabel()}</span>
+          <span className="text-amber-400 font-black tabular-nums w-6 text-center">{secondsLeft}s</span>
+        </div>
+      )}
 
       {/* Fullscreen Button */}
       <button
