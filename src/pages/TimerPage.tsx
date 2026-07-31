@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { CompetitionData, TimerState } from '../types';
 import { syncManager } from '../utils/syncManager';
 import { Footer } from '../components/Footer';
-import { Play, Pause, RotateCcw, Plus, Minus, Maximize, Minimize, Volume2, VolumeX, ArrowLeft, Sparkles } from 'lucide-react';
+import { Maximize, Minimize, Volume2, VolumeX, ArrowLeft, Sparkles } from 'lucide-react';
 
 const DEFAULT_TIMER: TimerState = {
   totalSeconds: 3600,
@@ -17,12 +17,12 @@ export const TimerPage: React.FC = () => {
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
 
-  // Local state for smooth 100ms UI countdown rendering
+  // Local state for smooth UI countdown rendering
   const [displaySeconds, setDisplaySeconds] = useState<number>(3600);
 
   const timerState: TimerState = data?.timer || DEFAULT_TIMER;
 
-  // Listen to syncManager data updates
+  // Listen to syncManager real-time data updates
   useEffect(() => {
     const unsubscribe = syncManager.subscribe((freshData) => {
       if (freshData) setData(freshData);
@@ -39,9 +39,8 @@ export const TimerPage: React.FC = () => {
         const rem = Math.max(0, diff);
         setDisplaySeconds(rem);
 
-        // Auto stop when reached 0
+        // Alert sound when reached 0
         if (rem <= 0 && timerState.isRunning) {
-          handlePause(0);
           playAlertSound();
         }
       } else {
@@ -91,72 +90,6 @@ export const TimerPage: React.FC = () => {
     } catch (e) {
       console.warn("Audio playback not allowed:", e);
     }
-  };
-
-  // Helper to commit updated timer state
-  const commitTimer = (newTimer: TimerState) => {
-    const updated: CompetitionData = {
-      ...data,
-      timer: newTimer,
-    };
-    setData(updated);
-    syncManager.saveData(updated);
-  };
-
-  // Timer Actions
-  const handleStart = () => {
-    const currentRem = displaySeconds > 0 ? displaySeconds : timerState.totalSeconds;
-    const targetEndTime = Date.now() + currentRem * 1000;
-    commitTimer({
-      ...timerState,
-      remainingSeconds: currentRem,
-      targetEndTime,
-      isRunning: true,
-    });
-  };
-
-  const handlePause = (forcedRem?: number) => {
-    const rem = forcedRem !== undefined ? forcedRem : displaySeconds;
-    commitTimer({
-      ...timerState,
-      remainingSeconds: rem,
-      targetEndTime: null,
-      isRunning: false,
-    });
-  };
-
-  const handleReset = (seconds: number = 3600) => {
-    commitTimer({
-      ...timerState,
-      totalSeconds: seconds,
-      remainingSeconds: seconds,
-      targetEndTime: null,
-      isRunning: false,
-    });
-    setDisplaySeconds(seconds);
-  };
-
-  const handleAdjustTime = (deltaSeconds: number) => {
-    const newRem = Math.max(0, displaySeconds + deltaSeconds);
-    const newTotal = Math.max(newRem, timerState.totalSeconds);
-    
-    if (timerState.isRunning) {
-      const targetEndTime = Date.now() + newRem * 1000;
-      commitTimer({
-        ...timerState,
-        totalSeconds: newTotal,
-        remainingSeconds: newRem,
-        targetEndTime,
-      });
-    } else {
-      commitTimer({
-        ...timerState,
-        totalSeconds: newTotal,
-        remainingSeconds: newRem,
-        targetEndTime: null,
-      });
-    }
-    setDisplaySeconds(newRem);
   };
 
   // Format MM:SS
@@ -223,7 +156,7 @@ export const TimerPage: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Timer Body */}
+      {/* Main Timer Display (Pure Display View - Only Controlled by Admin) */}
       <main className="flex-1 flex flex-col justify-center items-center px-4 py-4 z-10 w-full max-w-5xl mx-auto text-center space-y-6">
         {/* Sci-Fi Title */}
         <div className="space-y-2">
@@ -239,7 +172,7 @@ export const TimerPage: React.FC = () => {
 
         {/* Circular SVG Timer & Display */}
         <div className="relative flex items-center justify-center my-4">
-          <svg className="w-72 h-72 sm:w-96 sm:h-96 transform -rotate-90" viewBox="0 0 400 400">
+          <svg className="w-80 h-80 sm:w-[420px] sm:h-[420px] transform -rotate-90" viewBox="0 0 400 400">
             {/* Outer Glow Background Circle */}
             <circle
               cx="200"
@@ -274,19 +207,19 @@ export const TimerPage: React.FC = () => {
               strokeLinecap="round"
               style={{
                 filter: isFinished
-                  ? 'drop-shadow(0 0 15px rgba(244,63,94,0.8))'
+                  ? 'drop-shadow(0 0 20px rgba(244,63,94,0.8))'
                   : displaySeconds <= 300
-                  ? 'drop-shadow(0 0 15px rgba(251,191,36,0.8))'
-                  : 'drop-shadow(0 0 15px rgba(6,182,212,0.8))',
+                  ? 'drop-shadow(0 0 20px rgba(251,191,36,0.8))'
+                  : 'drop-shadow(0 0 20px rgba(6,182,212,0.8))',
               }}
             />
           </svg>
 
           {/* Time Digits Overlay */}
-          <div className="absolute flex flex-col items-center justify-center text-center space-y-2">
+          <div className="absolute flex flex-col items-center justify-center text-center space-y-3">
             {/* Status Badge */}
             <span
-              className={`px-3.5 py-1 rounded-full font-orbitron font-black text-[10px] sm:text-xs tracking-widest uppercase border shadow-lg ${
+              className={`px-4 py-1.5 rounded-full font-orbitron font-black text-xs sm:text-sm tracking-widest uppercase border shadow-lg ${
                 isFinished
                   ? 'bg-rose-950/90 text-rose-300 border-rose-500/50 animate-bounce'
                   : timerState.isRunning
@@ -299,7 +232,7 @@ export const TimerPage: React.FC = () => {
 
             {/* Giant Digits */}
             <div
-              className={`font-mono font-black text-6xl sm:text-8xl tracking-tighter ${
+              className={`font-mono font-black text-7xl sm:text-9xl tracking-tighter ${
                 isFinished
                   ? 'text-rose-400 text-glow-rose'
                   : displaySeconds <= 300
@@ -311,84 +244,9 @@ export const TimerPage: React.FC = () => {
             </div>
 
             {/* Sub text */}
-            <span className="text-xs sm:text-sm font-orbitron font-bold text-slate-400">
+            <span className="text-xs sm:text-base font-orbitron font-bold text-slate-400">
               {displaySeconds > 0 ? `CÒN LẠI / TỔNG ${Math.round(totalSec / 60)} PHÚT` : 'HOÀN THÀNH LẮP RÁP'}
             </span>
-          </div>
-        </div>
-
-        {/* Control Buttons & Quick Presets */}
-        <div className="space-y-4 max-w-2xl w-full bg-slate-900/90 p-4 sm:p-6 rounded-3xl border border-cyan-500/30 backdrop-blur shadow-2xl">
-          {/* Main Action Buttons */}
-          <div className="flex items-center justify-center gap-3 flex-wrap">
-            {!timerState.isRunning ? (
-              <button
-                onClick={handleStart}
-                disabled={isFinished}
-                className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-orbitron font-black text-sm sm:text-base px-6 py-3 rounded-2xl shadow-[0_0_25px_rgba(6,182,212,0.6)] active:scale-95 transition disabled:opacity-50"
-              >
-                <Play className="w-5 h-5 fill-current" /> BẮT ĐẦU
-              </button>
-            ) : (
-              <button
-                onClick={() => handlePause()}
-                className="flex items-center gap-2 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 font-orbitron font-black text-sm sm:text-base px-6 py-3 rounded-2xl shadow-[0_0_25px_rgba(251,191,36,0.6)] active:scale-95 transition"
-              >
-                <Pause className="w-5 h-5 fill-current" /> TẠM DỪNG
-              </button>
-            )}
-
-            <button
-              onClick={() => handleReset(3600)}
-              className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-orbitron font-bold text-xs sm:text-sm px-4 py-3 rounded-2xl border border-cyan-500/40 active:scale-95 transition"
-            >
-              <RotateCcw className="w-4 h-4" /> RESET 60 PHÚT
-            </button>
-
-            {/* Fine adjustment +1m / -1m */}
-            <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-2xl border border-slate-800">
-              <button
-                onClick={() => handleAdjustTime(-60)}
-                className="p-2 bg-slate-900 hover:bg-slate-800 text-rose-400 rounded-xl transition"
-                title="-1 Phút"
-              >
-                <Minus className="w-4 h-4" />
-              </button>
-              <span className="text-xs font-mono font-bold text-slate-400 px-1">1p</span>
-              <button
-                onClick={() => handleAdjustTime(60)}
-                className="p-2 bg-slate-900 hover:bg-slate-800 text-emerald-400 rounded-xl transition"
-                title="+1 Phút"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Quick Preset Buttons */}
-          <div className="flex items-center justify-center gap-2 flex-wrap pt-2 border-t border-slate-800">
-            <span className="text-[10px] font-orbitron text-slate-400 uppercase font-bold mr-1">
-              CHỌN NHANH:
-            </span>
-            {[
-              { label: '60 Phút', sec: 3600 },
-              { label: '45 Phút', sec: 2700 },
-              { label: '30 Phút', sec: 1800 },
-              { label: '15 Phút', sec: 900 },
-              { label: '5 Phút', sec: 300 },
-            ].map((p) => (
-              <button
-                key={p.sec}
-                onClick={() => handleReset(p.sec)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-orbitron font-extrabold transition ${
-                  totalSec === p.sec
-                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/60'
-                    : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
           </div>
         </div>
       </main>
