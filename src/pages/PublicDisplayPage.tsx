@@ -6,6 +6,7 @@ import { Footer } from '../components/Footer';
 import { LeaderboardA } from '../components/LeaderboardA';
 import { LeaderboardB } from '../components/LeaderboardB';
 import { LeaderboardC } from '../components/LeaderboardC';
+import { AutoFitContainer } from '../components/AutoFitContainer';
 import { Sparkles, Maximize, Minimize, ShieldCheck, Timer } from 'lucide-react';
 
 const DIVISIONS: DivisionId[] = ['A', 'B_EV3', 'B_SPIKE', 'C'];
@@ -133,7 +134,7 @@ export const PublicDisplayPage: React.FC = () => {
   const progressPct = (countdown / AUTO_SWITCH_MS) * 100;
 
   return (
-    <div className="min-h-screen bg-scifi-cyber text-white flex flex-col justify-between selection:bg-cyan-500 selection:text-slate-950 font-sans relative overflow-hidden">
+    <div className="h-screen max-h-screen bg-scifi-cyber text-white flex flex-col justify-between selection:bg-cyan-500 selection:text-slate-950 font-sans relative overflow-hidden">
       {/* Background Cyber Accents */}
       <div className="fixed top-0 left-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none z-0"></div>
       <div className="fixed bottom-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none z-0"></div>
@@ -149,10 +150,10 @@ export const PublicDisplayPage: React.FC = () => {
       )}
 
       {/* Header Bar */}
-      <header className="w-full relative z-20 pt-3 sm:pt-4 pb-2 px-3 sm:px-6 flex flex-col items-center">
-        <div className="w-full flex flex-wrap items-center justify-between gap-2 mb-2 text-xs">
+      <header className="w-full relative z-20 pt-2 sm:pt-3 pb-1 px-3 sm:px-6 flex flex-col items-center shrink-0">
+        <div className="w-full flex flex-wrap items-center justify-between gap-2 mb-1 text-xs">
           {/* Realtime Live Indicator */}
-          <div className="flex items-center gap-2 bg-slate-900/80 border border-cyan-500/40 px-3 py-1.5 rounded-full text-cyan-300 backdrop-blur shadow-lg">
+          <div className="flex items-center gap-2 bg-slate-900/80 border border-cyan-500/40 px-3 py-1 rounded-full text-cyan-300 backdrop-blur shadow-lg">
             <span className="relative flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
@@ -206,24 +207,26 @@ export const PublicDisplayPage: React.FC = () => {
         </div>
 
         {/* Sci-Fi Title Banner */}
-        <div className="text-center mt-4 mb-2 relative">
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-black font-orbitron tracking-wider text-white text-glow-cyan uppercase mb-1 flex items-center justify-center gap-2 sm:gap-3">
-            <Sparkles className="w-5 h-5 sm:w-8 sm:h-8 text-cyan-400 animate-spin" style={{ animationDuration: '8s' }} />
+        <div className="text-center my-1 relative">
+          <h1 className="text-xl sm:text-3xl md:text-4xl font-black font-orbitron tracking-wider text-white text-glow-cyan uppercase mb-0.5 flex items-center justify-center gap-2 sm:gap-3">
+            <Sparkles className="w-4 h-4 sm:w-6 sm:h-6 text-cyan-400 animate-spin" style={{ animationDuration: '8s' }} />
             <span>BẢNG XẾP HẠNG</span>
-            <Sparkles className="w-5 h-5 sm:w-8 sm:h-8 text-cyan-400 animate-spin" style={{ animationDuration: '8s' }} />
+            <Sparkles className="w-4 h-4 sm:w-6 sm:h-6 text-cyan-400 animate-spin" style={{ animationDuration: '8s' }} />
           </h1>
-          <div className="text-lg sm:text-2xl md:text-3xl font-extrabold font-orbitron text-cyan-300 tracking-widest text-glow-cyan">
+          <div className="text-base sm:text-xl md:text-2xl font-extrabold font-orbitron text-cyan-300 tracking-widest text-glow-cyan">
             {getDivisionTitle()}
           </div>
         </div>
       </header>
 
-      {/* Main Leaderboard Table Display */}
-      <main className="flex-1 flex flex-col justify-center items-center py-2 z-10 w-full overflow-hidden">
-        {activeDivision === 'A' && <LeaderboardA teams={rankedA} autoRankingEnabled={autoRankingEnabled} />}
-        {activeDivision === 'B_EV3' && <LeaderboardB teams={rankedB_EV3} autoRankingEnabled={autoRankingEnabled} />}
-        {activeDivision === 'B_SPIKE' && <LeaderboardB teams={rankedB_SPIKE} autoRankingEnabled={autoRankingEnabled} />}
-        {activeDivision === 'C' && <LeaderboardC teams={rankedC} autoRankingEnabled={autoRankingEnabled} />}
+      {/* Main Leaderboard Table Display Auto-Scaled */}
+      <main className="flex-1 min-h-0 flex flex-col justify-center items-center z-10 w-full overflow-hidden px-1">
+        <AutoFitContainer>
+          {activeDivision === 'A' && <LeaderboardA teams={rankedA} autoRankingEnabled={autoRankingEnabled} />}
+          {activeDivision === 'B_EV3' && <LeaderboardB teams={rankedB_EV3} autoRankingEnabled={autoRankingEnabled} />}
+          {activeDivision === 'B_SPIKE' && <LeaderboardB teams={rankedB_SPIKE} autoRankingEnabled={autoRankingEnabled} />}
+          {activeDivision === 'C' && <LeaderboardC teams={rankedC} autoRankingEnabled={autoRankingEnabled} />}
+        </AutoFitContainer>
       </main>
 
 

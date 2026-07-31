@@ -39,7 +39,7 @@ export const LeaderboardC: React.FC<LeaderboardCProps> = ({ teams = [], autoRank
           </div>
 
           {/* Pill Rows */}
-          <div className="space-y-3.5 relative">
+          <div className="space-y-1.5 sm:space-y-2 lg:space-y-2.5 relative">
             <AnimatePresence mode="popLayout">
               {safeTeams.map((team) => (
                 <motion.div
@@ -49,7 +49,7 @@ export const LeaderboardC: React.FC<LeaderboardCProps> = ({ teams = [], autoRank
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-                  className={`flex items-center py-3 pill-row ${getPillClass(
+                  className={`flex items-center py-1.5 sm:py-2 md:py-2.5 pill-row ${getPillClass(
                     team
                   )} text-center font-orbitron font-black text-base sm:text-lg`}
                 >

@@ -21,14 +21,13 @@ export const LeaderboardB: React.FC<LeaderboardBProps> = ({ teams = [], autoRank
     return 'rank-pill-neutral';
   };
 
-  const isCompact = safeTeams.length > 5;
-  const rowSpacing = isCompact ? 'space-y-2 sm:space-y-2.5' : 'space-y-3.5 sm:space-y-4.5';
-  const rowPadding = isCompact ? 'py-1.5 sm:py-2' : 'py-3 sm:py-3.5';
+  const rowSpacing = 'space-y-1.5 sm:space-y-2 lg:space-y-2.5';
+  const rowPadding = 'py-1.5 sm:py-2 md:py-2.5';
 
   return (
     <div className="w-full max-w-[96vw] xl:max-w-[1650px] mx-auto px-2 sm:px-6 py-1 flex flex-col flex-1 justify-start overflow-hidden">
-      {/* Horizontal & Vertical Scroll Wrapper */}
-      <div className="w-full overflow-x-auto pb-2 pt-1 max-h-[calc(100vh-230px)] overflow-y-auto no-scrollbar">
+      {/* Horizontal Scroll Wrapper */}
+      <div className="w-full overflow-x-auto pb-2 pt-1 no-scrollbar">
         <div className="min-w-[1000px] md:min-w-full">
           {/* Table Header Row */}
           <div className="flex items-center gap-3 px-6 sm:px-8 py-2 text-cyan-300 font-orbitron font-extrabold text-xs sm:text-sm uppercase tracking-widest text-glow-cyan mb-1">
