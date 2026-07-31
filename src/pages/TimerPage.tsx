@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { CompetitionData, TimerState } from '../types';
 import { syncManager } from '../utils/syncManager';
+import { Footer } from '../components/Footer';
 import { Play, Pause, RotateCcw, Plus, Minus, Maximize, Minimize, Volume2, VolumeX, ArrowLeft, Clock, Sparkles } from 'lucide-react';
 
 const DEFAULT_TIMER: TimerState = {
@@ -412,11 +413,14 @@ export const TimerPage: React.FC = () => {
       {/* Fullscreen Floating Button */}
       <button
         onClick={toggleFullscreen}
-        className="fixed bottom-6 right-6 z-30 bg-slate-900/90 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 p-3 rounded-full border border-cyan-500/50 shadow-2xl backdrop-blur transition-all duration-300"
+        className="fixed bottom-14 sm:bottom-16 right-4 sm:right-6 z-30 bg-slate-900/90 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 p-3 rounded-full border border-cyan-500/50 shadow-2xl backdrop-blur transition-all duration-300"
         title="Bật/Tắt Toàn Màn Hình Máy Chiếu"
       >
         {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
       </button>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
