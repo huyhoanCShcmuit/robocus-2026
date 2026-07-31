@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { CompetitionData, TimerState } from '../types';
 import { syncManager } from '../utils/syncManager';
 import { Footer } from '../components/Footer';
-import { Play, Pause, RotateCcw, Plus, Minus, Maximize, Minimize, Volume2, VolumeX, ArrowLeft, Clock, Sparkles } from 'lucide-react';
+import { Play, Pause, RotateCcw, Plus, Minus, Maximize, Minimize, Volume2, VolumeX, ArrowLeft, Sparkles } from 'lucide-react';
 
 const DEFAULT_TIMER: TimerState = {
   totalSeconds: 3600,
@@ -16,7 +16,6 @@ export const TimerPage: React.FC = () => {
   const [data, setData] = useState<CompetitionData>(syncManager.loadData());
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
-  const [timeStr, setTimeStr] = useState<string>('');
 
   // Local state for smooth 100ms UI countdown rendering
   const [displaySeconds, setDisplaySeconds] = useState<number>(3600);
@@ -54,17 +53,6 @@ export const TimerPage: React.FC = () => {
     const interval = setInterval(updateCountdown, 200);
     return () => clearInterval(interval);
   }, [timerState.isRunning, timerState.targetEndTime, timerState.remainingSeconds, timerState.totalSeconds]);
-
-  // Current clock time
-  useEffect(() => {
-    const updateClock = () => {
-      const now = new Date();
-      setTimeStr(now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-    };
-    updateClock();
-    const interval = setInterval(updateClock, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   // Listen for fullscreen change (Esc key)
   useEffect(() => {
@@ -223,7 +211,7 @@ export const TimerPage: React.FC = () => {
           <span className="font-bold tracking-wider font-orbitron text-xs uppercase">ROBOCUS 2026 - TIMER LIVE</span>
         </div>
 
-        {/* Clock & Sound Toggle */}
+        {/* Sound Toggle */}
         <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
@@ -232,11 +220,6 @@ export const TimerPage: React.FC = () => {
           >
             {soundEnabled ? <Volume2 className="w-4 h-4 text-cyan-400" /> : <VolumeX className="w-4 h-4 text-rose-400" />}
           </button>
-
-          <div className="flex items-center gap-1.5 bg-slate-900/80 border border-slate-700/60 px-3.5 py-1.5 rounded-full text-slate-300 font-mono text-xs shadow">
-            <Clock className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="font-bold">{timeStr}</span>
-          </div>
         </div>
       </header>
 

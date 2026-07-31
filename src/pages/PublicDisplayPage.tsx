@@ -6,7 +6,7 @@ import { Footer } from '../components/Footer';
 import { LeaderboardA } from '../components/LeaderboardA';
 import { LeaderboardB } from '../components/LeaderboardB';
 import { LeaderboardC } from '../components/LeaderboardC';
-import { Clock, Sparkles, Maximize, Minimize, ShieldCheck, Timer } from 'lucide-react';
+import { Sparkles, Maximize, Minimize, ShieldCheck, Timer } from 'lucide-react';
 
 const DIVISIONS: DivisionId[] = ['A', 'B_EV3', 'B_SPIKE', 'C'];
 const AUTO_SWITCH_MS = 15000; // 15 seconds
@@ -15,7 +15,6 @@ export const PublicDisplayPage: React.FC = () => {
   const [data, setData] = useState<CompetitionData>(syncManager.loadData());
   const [activeDivision, setActiveDivision] = useState<DivisionId>('A');
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
-  const [timeStr, setTimeStr] = useState<string>('');
   const [countdown, setCountdown] = useState<number>(AUTO_SWITCH_MS); // ms remaining
   const countdownRef = useRef<number>(AUTO_SWITCH_MS);
   const lastTickRef = useRef<number>(Date.now());
@@ -28,17 +27,6 @@ export const PublicDisplayPage: React.FC = () => {
       setData(freshData);
     });
     return () => unsubscribe();
-  }, []);
-
-  // Clock interval
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      setTimeStr(now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-    };
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
   }, []);
 
   // Listen for native fullscreen exit (Esc key)
@@ -194,22 +182,16 @@ export const PublicDisplayPage: React.FC = () => {
             ))}
           </div>
 
-          {/* Clock & Links */}
+          {/* Single 60p Timer Link & Admin Link */}
           <div className="flex items-center gap-2 sm:gap-3">
             <a
               href="#time"
-              className="flex items-center gap-1 bg-slate-900/80 hover:bg-slate-800 text-cyan-300 hover:text-cyan-200 text-[10px] font-mono px-2.5 py-1 rounded-full border border-cyan-500/40 transition shadow"
+              className="flex items-center gap-1.5 bg-slate-900/90 hover:bg-slate-800 text-amber-300 hover:text-amber-200 text-xs font-orbitron font-extrabold px-3 sm:px-4 py-1.5 rounded-full border border-amber-500/40 transition shadow"
               title="Đếm ngược 60 phút lắp ráp & lập trình robot"
             >
-              <Timer className="w-3 h-3 text-cyan-400" />
-              <span className="hidden sm:inline">Timer 60p</span>
-              <span className="sm:hidden">60p</span>
+              <Timer className="w-3.5 h-3.5 text-amber-400" />
+              <span>TIMER 60P</span>
             </a>
-
-            <div className="flex items-center gap-1.5 bg-slate-900/80 border border-slate-700/60 px-3 py-1.5 rounded-full text-slate-300 font-mono text-xs shadow">
-              <Clock className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="font-bold">{timeStr}</span>
-            </div>
 
             <a
               href="#admin"

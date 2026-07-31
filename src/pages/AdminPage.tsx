@@ -538,12 +538,20 @@ export const AdminPage: React.FC = () => {
             {autoRankingEnabled ? '⚡ AUTO XẾP HẠNG: BẬT' : '🔒 AUTO XẾP HẠNG: TẮT (GÁN HUY CHƯƠNG MANUALLY)'}
           </button>
 
-          {/* Quick Realtime Timer Controls on Header */}
+          {/* Single 60p Realtime Timer Control & Link on Admin Header */}
           <div className="flex items-center gap-1.5 bg-slate-950 px-3 py-1 rounded-full border border-amber-500/40 shadow text-xs">
-            <Timer className="w-3.5 h-3.5 text-amber-400" />
-            <span className="font-mono font-bold text-amber-300 w-12 text-center">
-              {formatMinSec(adminTimerSec)}
-            </span>
+            <a
+              href="#time"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 font-orbitron font-bold text-amber-300 hover:text-amber-200 transition"
+              title="Mở màn hình bấm giờ khán giả (#time)"
+            >
+              <Timer className="w-3.5 h-3.5 text-amber-400" />
+              <span className="font-mono text-xs text-amber-300 font-extrabold">
+                {formatMinSec(adminTimerSec)}
+              </span>
+            </a>
             {!timerState.isRunning ? (
               <button
                 onClick={handleAdminStartTimer}
@@ -570,16 +578,6 @@ export const AdminPage: React.FC = () => {
               <RotateCcw className="w-3 h-3" />
             </button>
           </div>
-
-          <a
-            href="#time"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 sm:gap-1.5 bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 font-bold text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-amber-500/50 transition"
-          >
-            <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-            <span>MỞ TIMER #TIME</span>
-          </a>
 
           <a
             href="#"
