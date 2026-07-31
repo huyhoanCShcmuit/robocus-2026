@@ -3,7 +3,7 @@ import type { CompetitionData, TeamA, TeamB, TeamC, MatchResultC, TimerState } f
 import { syncManager } from '../utils/syncManager';
 import { calculateRankingsB } from '../utils/rankingEngine';
 import { toSafeArray, ensureFullMatchesC } from '../utils/safeArray';
-import { Trophy, Lock, Key, Plus, Trash2, Download, Upload, RefreshCw, CheckCircle, ExternalLink, Zap, ArrowLeft, Clock, Play, Pause, RotateCcw, Timer } from 'lucide-react';
+import { Trophy, Lock, Key, Plus, Trash2, Download, Upload, RefreshCw, CheckCircle, ExternalLink, Zap, ArrowLeft, Play, Pause, RotateCcw, Timer } from 'lucide-react';
 
 const DEFAULT_PIN = '2026';
 
@@ -1138,32 +1138,36 @@ export const AdminPage: React.FC = () => {
           {/* TIMER CONTROL TAB */}
           {activeTab === 'TIMER' && (
             <div className="space-y-6 max-w-4xl mx-auto py-2">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800 pb-3 gap-2">
+              {/* Header Title & Stage Launcher */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800 pb-4 gap-3">
                 <div>
-                  <h3 className="text-amber-400 font-orbitron font-extrabold text-sm sm:text-base flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-amber-400" />
-                    ĐIỀU KHIỂN BẤM GIỜ LẮP RÁP ROBOT — REALTIME SYNC
+                  <h3 className="text-amber-400 font-orbitron font-extrabold text-base sm:text-lg flex items-center gap-2">
+                    <Timer className="w-6 h-6 text-amber-400 animate-pulse" />
+                    BẢNG ĐIỀU KHIỂN BẤM GIỜ REALTIME
                   </h3>
-                  <span className="text-[10px] sm:text-xs text-slate-400 font-mono">
-                    Tất cả thao tác Bắt đầu / Tạm dừng / Reset trên trang Admin này sẽ ngay lập tức đồng bộ thời gian thực với tất cả các máy chiếu và màn hình khán giả đang xem trang /time!
-                  </span>
+                  <p className="text-xs text-slate-400 font-mono mt-0.5">
+                    Mọi thao tác bấm giờ ở đây sẽ tự động đồng bộ tức thì lên màn hình máy chiếu sân khấu khán giả (/time).
+                  </p>
                 </div>
 
                 <a
                   href="#time"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 font-orbitron font-bold text-xs px-4 py-2 rounded-xl border border-amber-500/50 transition shrink-0"
+                  className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-slate-950 font-orbitron font-black text-xs px-5 py-2.5 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.4)] transition shrink-0"
                 >
-                  <ExternalLink className="w-4 h-4" /> MỞ MÀN HÌNH BẤM GIỜ SÂN KHẤU (#TIME)
+                  <ExternalLink className="w-4 h-4" /> MỞ MÀN HÌNH SÂN KHẤU (#TIME)
                 </a>
               </div>
 
-              {/* Big Timer Console Box */}
-              <div className="bg-slate-950 p-6 sm:p-8 rounded-3xl border border-amber-500/30 text-center space-y-6 shadow-2xl">
+              {/* Main Control Center Box */}
+              <div className="bg-slate-950 p-6 sm:p-10 rounded-3xl border border-amber-500/40 text-center space-y-6 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500"></div>
+
+                {/* Status Indicator Pill */}
                 <div className="flex items-center justify-center gap-2">
                   <span
-                    className={`px-4 py-1.5 rounded-full font-orbitron font-extrabold text-xs uppercase border ${
+                    className={`px-5 py-1.5 rounded-full font-orbitron font-black text-xs uppercase tracking-widest border shadow-lg ${
                       adminTimerSec === 0
                         ? 'bg-rose-950 text-rose-300 border-rose-500/50 animate-bounce'
                         : timerState.isRunning
@@ -1175,81 +1179,124 @@ export const AdminPage: React.FC = () => {
                       ? '🔴 HẾT GIỜ THI ĐẤU'
                       : timerState.isRunning
                       ? '🟢 ĐANG CHẠY REALTIME'
-                      : '🟡 ĐANG TẠM DƯNG'}
+                      : '🟡 ĐANG TẠM DỪNG'}
                   </span>
                 </div>
 
-                {/* Display Digits */}
-                <div className="font-mono font-black text-6xl sm:text-8xl text-amber-300 text-glow-amber tracking-tighter">
+                {/* Massive Digital Counter */}
+                <div className="font-mono font-black text-7xl sm:text-9xl text-amber-300 text-glow-amber tracking-tighter py-2">
                   {formatMinSec(adminTimerSec)}
                 </div>
 
-                {/* Main Action Buttons */}
-                <div className="flex items-center justify-center gap-3 flex-wrap">
+                {/* Main Action Control Buttons */}
+                <div className="flex items-center justify-center gap-4 flex-wrap">
                   {!timerState.isRunning ? (
                     <button
                       onClick={handleAdminStartTimer}
                       disabled={adminTimerSec === 0}
-                      className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-orbitron font-black text-base px-8 py-3.5 rounded-2xl shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition disabled:opacity-40"
+                      className="flex items-center gap-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-orbitron font-black text-lg px-10 py-4 rounded-2xl shadow-[0_0_30px_rgba(16,185,129,0.6)] active:scale-95 transition disabled:opacity-40"
                     >
-                      <Play className="w-5 h-5 fill-current" /> BẮT ĐẦU ĐẾM NGƯỢC
+                      <Play className="w-6 h-6 fill-current" /> BẮT ĐẦU ĐẾM NGƯỢC
                     </button>
                   ) : (
                     <button
                       onClick={handleAdminPauseTimer}
-                      className="flex items-center gap-2 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 font-orbitron font-black text-base px-8 py-3.5 rounded-2xl shadow-[0_0_25px_rgba(251,191,36,0.6)] active:scale-95 transition"
+                      className="flex items-center gap-3 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 font-orbitron font-black text-lg px-10 py-4 rounded-2xl shadow-[0_0_30px_rgba(251,191,36,0.6)] active:scale-95 transition"
                     >
-                      <Pause className="w-5 h-5 fill-current" /> TẠM DỪNG
+                      <Pause className="w-6 h-6 fill-current" /> TẠM DỪNG
                     </button>
                   )}
 
                   <button
                     onClick={() => handleAdminResetTimer(3600)}
-                    className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-amber-300 font-orbitron font-bold text-sm px-6 py-3.5 rounded-2xl border border-amber-500/40 active:scale-95 transition"
+                    className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-amber-300 font-orbitron font-bold text-sm px-6 py-4 rounded-2xl border border-amber-500/40 active:scale-95 transition"
                   >
-                    <RotateCcw className="w-4 h-4" /> RESET 60 PHÚT
+                    <RotateCcw className="w-5 h-5" /> RESET 60 PHÚT
                   </button>
+                </div>
 
-                  <div className="flex items-center gap-2 bg-slate-900 p-1.5 rounded-2xl border border-slate-800">
+                {/* Adjustments & Presets Grid */}
+                <div className="pt-6 border-t border-slate-800/80 space-y-4">
+                  {/* Adjustment Buttons */}
+                  <div className="flex items-center justify-center gap-2 flex-wrap">
+                    <span className="text-xs font-orbitron text-slate-400 font-bold uppercase mr-2">
+                      TĂNG / GIẢM THỜI GIAN:
+                    </span>
+                    <button
+                      onClick={() => handleAdminAdjustTimer(-300)}
+                      className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-rose-400 font-mono font-bold rounded-xl text-xs border border-rose-500/30 transition"
+                    >
+                      -5 Phút
+                    </button>
                     <button
                       onClick={() => handleAdminAdjustTimer(-60)}
-                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-rose-400 font-bold rounded-xl text-xs transition"
+                      className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-rose-300 font-mono font-bold rounded-xl text-xs border border-slate-700 transition"
                     >
                       -1 Phút
                     </button>
                     <button
                       onClick={() => handleAdminAdjustTimer(60)}
-                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold rounded-xl text-xs transition"
+                      className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-emerald-300 font-mono font-bold rounded-xl text-xs border border-slate-700 transition"
                     >
                       +1 Phút
                     </button>
+                    <button
+                      onClick={() => handleAdminAdjustTimer(300)}
+                      className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-emerald-400 font-mono font-bold rounded-xl text-xs border border-emerald-500/30 transition"
+                    >
+                      +5 Phút
+                    </button>
+                  </div>
+
+                  {/* Preset Mốc Phút */}
+                  <div className="flex items-center justify-center gap-2 flex-wrap pt-2">
+                    <span className="text-xs font-orbitron text-slate-400 font-bold uppercase mr-2">
+                      ĐẶT NHANH MỐC:
+                    </span>
+                    {[
+                      { label: '60 Phút', sec: 3600 },
+                      { label: '45 Phút', sec: 2700 },
+                      { label: '30 Phút', sec: 1800 },
+                      { label: '15 Phút', sec: 900 },
+                      { label: '5 Phút', sec: 300 },
+                      { label: '1 Phút', sec: 60 },
+                    ].map((p) => (
+                      <button
+                        key={p.sec}
+                        onClick={() => handleAdminResetTimer(p.sec)}
+                        className={`px-4 py-2 rounded-xl text-xs font-orbitron font-extrabold transition ${
+                          (timerState.totalSeconds || 3600) === p.sec
+                            ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/30 scale-105'
+                            : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
+                        }`}
+                      >
+                        {p.label}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                {/* Quick Presets */}
-                <div className="pt-4 border-t border-slate-800 flex items-center justify-center gap-2 flex-wrap">
-                  <span className="text-xs font-orbitron text-slate-400 font-bold uppercase mr-2">
-                    CHỌN MỐC THỜI GIAN:
-                  </span>
-                  {[
-                    { label: '60 Phút', sec: 3600 },
-                    { label: '45 Phút', sec: 2700 },
-                    { label: '30 Phút', sec: 1800 },
-                    { label: '15 Phút', sec: 900 },
-                    { label: '5 Phút', sec: 300 },
-                  ].map((p) => (
-                    <button
-                      key={p.sec}
-                      onClick={() => handleAdminResetTimer(p.sec)}
-                      className={`px-4 py-2 rounded-xl text-xs font-orbitron font-extrabold transition ${
-                        (timerState.totalSeconds || 3600) === p.sec
-                          ? 'bg-amber-500/20 text-amber-300 border border-amber-500/60'
-                          : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
-                      }`}
-                    >
-                      {p.label}
-                    </button>
-                  ))}
+                {/* Edit Timer Title Banner */}
+                <div className="pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <label className="text-xs font-orbitron font-bold text-slate-400 uppercase whitespace-nowrap">
+                    TIÊU ĐỀ ĐỒNG HỒ SÂN KHẤU:
+                  </label>
+                  <input
+                    type="text"
+                    value={timerState.title || 'THỜI GIAN LẮP RÁP & LẬP TRÌNH ROBOT'}
+                    onChange={(e) => {
+                      const updated: CompetitionData = {
+                        ...formData,
+                        timer: {
+                          ...timerState,
+                          title: e.target.value,
+                        },
+                      };
+                      commitData(updated);
+                    }}
+                    placeholder="Tiêu đề hiển thị trên sân khấu..."
+                    className="flex-1 bg-slate-900 border border-slate-700 text-amber-300 text-xs font-orbitron font-bold rounded-xl px-4 py-2.5 focus:border-amber-400 focus:outline-none w-full sm:w-auto"
+                  />
                 </div>
               </div>
             </div>
