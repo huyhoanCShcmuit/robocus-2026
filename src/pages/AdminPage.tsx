@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { CompetitionData, TeamA, TeamB, TeamC, MatchResultC } from '../types';
 import { syncManager } from '../utils/syncManager';
 import { calculateRankingsB } from '../utils/rankingEngine';
-import { toSafeArray } from '../utils/safeArray';
+import { toSafeArray, ensureFullMatchesC } from '../utils/safeArray';
 import { Trophy, Lock, Key, Plus, Trash2, Download, Upload, RefreshCw, CheckCircle, ExternalLink, Zap, ArrowLeft } from 'lucide-react';
 
 const DEFAULT_PIN = '2026';
@@ -59,32 +59,21 @@ export const AdminPage: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  // Auto-generate second leg matches for Bảng C when missing
+  // Auto-ensure full round robin matches for Bảng C (both Leg 1 and Leg 2)
   useEffect(() => {
-    const allMatches = toSafeArray<MatchResultC>(formData.matchesC);
-    const diMatches = allMatches.filter((m) => (m.leg || 1) === 1);
-    if (diMatches.length === 0) return;
-    const existingVeIds = new Set(allMatches.filter((m) => m.leg === 2).map((m) => m.id));
-    const newVeMatches = diMatches
-      .map((m) => ({
-        id: `${m.id}b`,
-        team1Id: m.team2Id,
-        team2Id: m.team1Id,
-        score1: 0,
-        score2: 0,
-        isCompleted: false,
-        leg: 2 as const,
-      }))
-      .filter((m) => !existingVeIds.has(m.id));
-    if (newVeMatches.length === 0) return;
-    // Auto-save the new second leg matches
-    const updated: CompetitionData = {
-      ...formData,
-      matchesC: [...allMatches, ...newVeMatches],
-    };
-    commitData(updated);
+    const teamsC = toSafeArray<TeamC>(formData.teamsC);
+    if (teamsC.length < 2) return;
+    const fullMatches = ensureFullMatchesC(teamsC, formData.matchesC);
+    const currentMatches = toSafeArray<MatchResultC>(formData.matchesC);
+    if (fullMatches.length !== currentMatches.length) {
+      const updated: CompetitionData = {
+        ...formData,
+        matchesC: fullMatches,
+      };
+      commitData(updated);
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.matchesC]);
+  }, [formData.teamsC, formData.matchesC]);
 
   // Handle PIN authentication
   const handleLogin = (e: React.FormEvent) => {
@@ -193,7 +182,9 @@ export const AdminPage: React.FC = () => {
       }
     } else if (newTeamDivision === 'C') {
       const newTeam: TeamC = { id, name, division: 'C' };
-      updated.teamsC = [...updated.teamsC, newTeam];
+      const newTeamsC = [...toSafeArray<TeamC>(updated.teamsC), newTeam];
+      updated.teamsC = newTeamsC;
+      updated.matchesC = ensureFullMatchesC(newTeamsC, updated.matchesC);
     }
 
     commitData(updated);
@@ -211,7 +202,9 @@ export const AdminPage: React.FC = () => {
     } else if (div === 'B_SPIKE') {
       updated.teamsB_SPIKE = updated.teamsB_SPIKE.filter((t) => t.id !== id);
     } else if (div === 'C') {
-      updated.teamsC = updated.teamsC.filter((t) => t.id !== id);
+      const newTeamsC = toSafeArray<TeamC>(updated.teamsC).filter((t) => t.id !== id);
+      updated.teamsC = newTeamsC;
+      updated.matchesC = ensureFullMatchesC(newTeamsC, updated.matchesC);
     }
     commitData(updated);
   };

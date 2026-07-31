@@ -1,4 +1,4 @@
-import type { CompetitionData, MatchResultA } from '../types';
+import type { CompetitionData, MatchResultA, MatchResultC } from '../types';
 
 const defaultTeamsA = [
   { id: 'a1', name: 'A01', division: 'A' as const, wins: 0, scores: [null, null, null, null, null, null, null, null] },
@@ -30,8 +30,47 @@ for (let i = 0; i < defaultTeamsA.length; i++) {
   }
 }
 
+// BẢNG C: Đầy đủ 5 Đội (C01 đến C05) - Trận đấu khởi tạo tỷ số 0-0
+const defaultTeamsC = [
+  { id: 'c1', name: 'C01', division: 'C' as const },
+  { id: 'c2', name: 'C02', division: 'C' as const },
+  { id: 'c3', name: 'C03', division: 'C' as const },
+  { id: 'c4', name: 'C04', division: 'C' as const },
+  { id: 'c5', name: 'C05', division: 'C' as const },
+];
+
+const defaultMatchesC: MatchResultC[] = [];
+// Generate Lượt đi (Leg 1) - All unique pairs
+for (let i = 0; i < defaultTeamsC.length; i++) {
+  for (let j = i + 1; j < defaultTeamsC.length; j++) {
+    defaultMatchesC.push({
+      id: `mc_${defaultTeamsC[i].id}_${defaultTeamsC[j].id}_l1`,
+      team1Id: defaultTeamsC[i].id,
+      team2Id: defaultTeamsC[j].id,
+      score1: 0,
+      score2: 0,
+      isCompleted: false,
+      leg: 1,
+    });
+  }
+}
+// Generate Lượt về (Leg 2) - Reversed home/away teams for all unique pairs
+for (let i = 0; i < defaultTeamsC.length; i++) {
+  for (let j = i + 1; j < defaultTeamsC.length; j++) {
+    defaultMatchesC.push({
+      id: `mc_${defaultTeamsC[i].id}_${defaultTeamsC[j].id}_l2`,
+      team1Id: defaultTeamsC[j].id,
+      team2Id: defaultTeamsC[i].id,
+      score1: 0,
+      score2: 0,
+      isCompleted: false,
+      leg: 2,
+    });
+  }
+}
+
 export const INITIAL_COMPETITION_DATA: CompetitionData = {
-  version: 6,
+  version: 7,
   settings: {
     title: 'BẢNG XẾP HẠNG',
     subtitle: 'ROBOCUS 2026 - CUỘC THI GIẢI PHÁP SÁNG TẠO ROBOT',
@@ -72,28 +111,9 @@ export const INITIAL_COMPETITION_DATA: CompetitionData = {
     })),
   })),
 
-  // BẢNG C: Đầy đủ 5 Đội (C01 đến C05) - Trận đấu khởi tạo tỷ số 0-0
-  teamsC: [
-    { id: 'c1', name: 'C01', division: 'C' },
-    { id: 'c2', name: 'C02', division: 'C' },
-    { id: 'c3', name: 'C03', division: 'C' },
-    { id: 'c4', name: 'C04', division: 'C' },
-    { id: 'c5', name: 'C05', division: 'C' },
-  ],
-  matchesC: [
-    // Lượt đi
-    { id: 'mc1', team1Id: 'c1', team2Id: 'c2', score1: 0, score2: 0, isCompleted: false, leg: 1 },
-    { id: 'mc2', team1Id: 'c3', team2Id: 'c4', score1: 0, score2: 0, isCompleted: false, leg: 1 },
-    { id: 'mc3', team1Id: 'c1', team2Id: 'c3', score1: 0, score2: 0, isCompleted: false, leg: 1 },
-    { id: 'mc4', team1Id: 'c2', team2Id: 'c5', score1: 0, score2: 0, isCompleted: false, leg: 1 },
-    { id: 'mc5', team1Id: 'c4', team2Id: 'c5', score1: 0, score2: 0, isCompleted: false, leg: 1 },
-    // Lượt về (đội 1 & 2 đổi vai — vẫn tính đúng theo rankingEngine)
-    { id: 'mc1b', team1Id: 'c2', team2Id: 'c1', score1: 0, score2: 0, isCompleted: false, leg: 2 },
-    { id: 'mc2b', team1Id: 'c4', team2Id: 'c3', score1: 0, score2: 0, isCompleted: false, leg: 2 },
-    { id: 'mc3b', team1Id: 'c3', team2Id: 'c1', score1: 0, score2: 0, isCompleted: false, leg: 2 },
-    { id: 'mc4b', team1Id: 'c5', team2Id: 'c2', score1: 0, score2: 0, isCompleted: false, leg: 2 },
-    { id: 'mc5b', team1Id: 'c5', team2Id: 'c4', score1: 0, score2: 0, isCompleted: false, leg: 2 },
-  ],
+  // BẢNG C: Đầy đủ 5 Đội (C01 đến C05) & 20 trận vòng tròn 2 lượt
+  teamsC: defaultTeamsC,
+  matchesC: defaultMatchesC,
 
   lastUpdated: Date.now(),
 };
