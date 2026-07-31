@@ -16,6 +16,9 @@ export const PublicDisplayPage: React.FC = () => {
   const [data, setData] = useState<CompetitionData>(syncManager.loadData());
   const [activeDivision, setActiveDivision] = useState<DivisionId>('A');
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [paginateMode, setPaginateMode] = useState<boolean>(false);
+  const [pageIndex, setPageIndex] = useState<number>(0);
+
   const [countdown, setCountdown] = useState<number>(AUTO_SWITCH_MS); // ms remaining
   const countdownRef = useRef<number>(AUTO_SWITCH_MS);
   const lastTickRef = useRef<number>(Date.now());
@@ -42,7 +45,6 @@ export const PublicDisplayPage: React.FC = () => {
   // Auto-rotate divisions when fullscreen
   useEffect(() => {
     if (!isFullscreen) {
-      // Clear timers when exiting fullscreen
       if (rotateTimerRef.current) clearInterval(rotateTimerRef.current);
       if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
       rotateTimerRef.current = null;
@@ -51,23 +53,33 @@ export const PublicDisplayPage: React.FC = () => {
       return;
     }
 
-    // Reset countdown when fullscreen starts
     countdownRef.current = AUTO_SWITCH_MS;
     lastTickRef.current = Date.now();
     setCountdown(AUTO_SWITCH_MS);
 
-    // Rotate division every AUTO_SWITCH_MS
+    // Rotate division / page
     rotateTimerRef.current = setInterval(() => {
-      setActiveDivision((prev) => {
-        const idx = DIVISIONS.indexOf(prev);
-        return DIVISIONS[(idx + 1) % DIVISIONS.length];
-      });
+      if (paginateMode) {
+        setPageIndex((prevPage) => {
+          if (prevPage === 0) return 1;
+          setActiveDivision((prevDiv) => {
+            const idx = DIVISIONS.indexOf(prevDiv);
+            return DIVISIONS[(idx + 1) % DIVISIONS.length];
+          });
+          return 0;
+        });
+      } else {
+        setActiveDivision((prevDiv) => {
+          const idx = DIVISIONS.indexOf(prevDiv);
+          return DIVISIONS[(idx + 1) % DIVISIONS.length];
+        });
+      }
+
       countdownRef.current = AUTO_SWITCH_MS;
       lastTickRef.current = Date.now();
       setCountdown(AUTO_SWITCH_MS);
     }, AUTO_SWITCH_MS);
 
-    // Smooth countdown every 100ms
     countdownTimerRef.current = setInterval(() => {
       const now = Date.now();
       const elapsed = now - lastTickRef.current;
@@ -79,22 +91,33 @@ export const PublicDisplayPage: React.FC = () => {
       if (rotateTimerRef.current) clearInterval(rotateTimerRef.current);
       if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
     };
-  }, [isFullscreen]);
+  }, [isFullscreen, paginateMode]);
 
-  // Manual tab change resets the countdown too
+  // Manual tab change resets pageIndex & countdown
   const handleDivisionChange = (div: DivisionId) => {
     setActiveDivision(div);
+    setPageIndex(0);
     if (isFullscreen) {
       countdownRef.current = AUTO_SWITCH_MS;
       lastTickRef.current = Date.now();
       setCountdown(AUTO_SWITCH_MS);
-      // Restart rotate timer so it counts 15s from now
       if (rotateTimerRef.current) clearInterval(rotateTimerRef.current);
       rotateTimerRef.current = setInterval(() => {
-        setActiveDivision((prev) => {
-          const idx = DIVISIONS.indexOf(prev);
-          return DIVISIONS[(idx + 1) % DIVISIONS.length];
-        });
+        if (paginateMode) {
+          setPageIndex((prevPage) => {
+            if (prevPage === 0) return 1;
+            setActiveDivision((prevDiv) => {
+              const idx = DIVISIONS.indexOf(prevDiv);
+              return DIVISIONS[(idx + 1) % DIVISIONS.length];
+            });
+            return 0;
+          });
+        } else {
+          setActiveDivision((prevDiv) => {
+            const idx = DIVISIONS.indexOf(prevDiv);
+            return DIVISIONS[(idx + 1) % DIVISIONS.length];
+          });
+        }
         countdownRef.current = AUTO_SWITCH_MS;
         lastTickRef.current = Date.now();
         setCountdown(AUTO_SWITCH_MS);
@@ -120,6 +143,13 @@ export const PublicDisplayPage: React.FC = () => {
   const rankedB_EV3 = calculateRankingsB(data.teamsB_EV3, autoRankingEnabled);
   const rankedB_SPIKE = calculateRankingsB(data.teamsB_SPIKE, autoRankingEnabled);
   const rankedC = calculateRankingsC(data.teamsC, data.matchesC, autoRankingEnabled);
+
+  // Paginate helper (4 teams per page if enabled)
+  const getPagedTeams = <T,>(teams: T[]): T[] => {
+    if (!paginateMode) return teams;
+    const start = pageIndex * 4;
+    return teams.slice(start, start + 4);
+  };
 
   const getDivisionTitle = () => {
     switch (activeDivision) {
@@ -183,8 +213,23 @@ export const PublicDisplayPage: React.FC = () => {
             ))}
           </div>
 
-          {/* Single 60p Timer Link & Admin Link */}
+          {/* Controls: Paginate Mode & Timer 60p */}
           <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              onClick={() => {
+                setPaginateMode(!paginateMode);
+                setPageIndex(0);
+              }}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-orbitron font-extrabold border transition shadow ${
+                paginateMode
+                  ? 'bg-amber-500 text-slate-950 border-amber-400 font-black shadow-amber-500/40'
+                  : 'bg-slate-900/90 text-cyan-300 border-cyan-500/40 hover:bg-slate-800'
+              }`}
+              title="Chuyển chế độ: Hiển thị tất cả đội / Chia trang 4 đội chữ to"
+            >
+              <span>{paginateMode ? '📄 CHIA TRANG (4 ĐỘI/TRANG)' : '📊 CHẾ ĐỘ HIỂN THỊ TẤT CẢ'}</span>
+            </button>
+
             <a
               href="#time"
               className="flex items-center gap-1.5 bg-slate-900/90 hover:bg-slate-800 text-amber-300 hover:text-amber-200 text-xs font-orbitron font-extrabold px-3 sm:px-4 py-1.5 rounded-full border border-amber-500/40 transition shadow"
@@ -222,10 +267,10 @@ export const PublicDisplayPage: React.FC = () => {
       {/* Main Leaderboard Table Display Auto-Scaled */}
       <main className="flex-1 min-h-0 flex flex-col justify-center items-center z-10 w-full overflow-hidden px-1">
         <AutoFitContainer>
-          {activeDivision === 'A' && <LeaderboardA teams={rankedA} autoRankingEnabled={autoRankingEnabled} />}
-          {activeDivision === 'B_EV3' && <LeaderboardB teams={rankedB_EV3} autoRankingEnabled={autoRankingEnabled} />}
-          {activeDivision === 'B_SPIKE' && <LeaderboardB teams={rankedB_SPIKE} autoRankingEnabled={autoRankingEnabled} />}
-          {activeDivision === 'C' && <LeaderboardC teams={rankedC} autoRankingEnabled={autoRankingEnabled} />}
+          {activeDivision === 'A' && <LeaderboardA teams={getPagedTeams(rankedA)} autoRankingEnabled={autoRankingEnabled} />}
+          {activeDivision === 'B_EV3' && <LeaderboardB teams={getPagedTeams(rankedB_EV3)} autoRankingEnabled={autoRankingEnabled} />}
+          {activeDivision === 'B_SPIKE' && <LeaderboardB teams={getPagedTeams(rankedB_SPIKE)} autoRankingEnabled={autoRankingEnabled} />}
+          {activeDivision === 'C' && <LeaderboardC teams={getPagedTeams(rankedC)} autoRankingEnabled={autoRankingEnabled} />}
         </AutoFitContainer>
       </main>
 

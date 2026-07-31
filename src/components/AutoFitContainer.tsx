@@ -13,13 +13,16 @@ export const AutoFitContainer: React.FC<AutoFitContainerProps> = ({ children }) 
     const handleResize = () => {
       if (!outerRef.current || !innerRef.current) return;
 
+      // Temporarily remove transform to measure natural size
+      innerRef.current.style.transform = 'none';
+
       const outerH = outerRef.current.clientHeight;
       const innerH = innerRef.current.scrollHeight;
 
       if (outerH > 0 && innerH > 0) {
-        // If inner content exceeds outer height, scale down to fit 100%
         if (innerH > outerH) {
-          const fitScale = Math.max(0.65, outerH / innerH);
+          // Scale down to fit exact outer height with a 2% buffer
+          const fitScale = (outerH / innerH) * 0.98;
           setScale(fitScale);
         } else {
           setScale(1);

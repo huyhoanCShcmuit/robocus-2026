@@ -2,11 +2,11 @@ import React from 'react';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="w-full relative z-10 bg-white py-1 sm:py-1.5 px-2 flex items-center justify-center border-t-2 border-slate-200 shadow-xl">
+    <footer className="w-full relative z-30 bg-white py-1 px-3 flex items-center justify-center border-t-2 border-slate-200 shadow-2xl shrink-0">
       <img
         src="/footer.png"
         alt="ROBOCUS 2026 Banner Footer"
-        className="w-full h-auto max-h-24 sm:max-h-28 md:max-h-32 object-contain mx-auto"
+        className="w-full h-auto max-h-14 sm:max-h-18 md:max-h-22 object-contain mx-auto shrink-0 pointer-events-none"
       />
     </footer>
   );
