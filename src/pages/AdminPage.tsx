@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import type { CompetitionData, TeamA, TeamB, TeamC, MatchResultC } from '../types';
+import type { CompetitionData, TeamA, TeamB, TeamC, MatchResultC, TimerState } from '../types';
 import { syncManager } from '../utils/syncManager';
 import { calculateRankingsB } from '../utils/rankingEngine';
 import { toSafeArray, ensureFullMatchesC } from '../utils/safeArray';
-import { Trophy, Lock, Key, Plus, Trash2, Download, Upload, RefreshCw, CheckCircle, ExternalLink, Zap, ArrowLeft, Clock } from 'lucide-react';
+import { Trophy, Lock, Key, Plus, Trash2, Download, Upload, RefreshCw, CheckCircle, ExternalLink, Zap, ArrowLeft, Clock, Play, Pause, RotateCcw, Timer } from 'lucide-react';
 
 const DEFAULT_PIN = '2026';
 
@@ -15,7 +15,7 @@ export const AdminPage: React.FC = () => {
   const [pinInput, setPinInput] = useState<string>('');
   const [pinError, setPinError] = useState<boolean>(false);
 
-  const [activeTab, setActiveTab] = useState<'A' | 'B_EV3' | 'B_SPIKE' | 'C' | 'TEAMS'>('A');
+  const [activeTab, setActiveTab] = useState<'A' | 'B_EV3' | 'B_SPIKE' | 'C' | 'TEAMS' | 'TIMER'>('A');
   const [formData, setFormData] = useState<CompetitionData>(JSON.parse(JSON.stringify(data)));
   const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -97,6 +97,99 @@ export const AdminPage: React.FC = () => {
   };
 
   const autoRankingEnabled = formData.settings?.autoRankingEnabled ?? true;
+
+  // Timer Real-time Sync State & Handlers
+  const timerState: TimerState = formData?.timer || {
+    totalSeconds: 3600,
+    remainingSeconds: 3600,
+    targetEndTime: null,
+    isRunning: false,
+    title: 'THỜI GIAN LẮP RÁP & LẬP TRÌNH ROBOT',
+  };
+
+  const [adminTimerSec, setAdminTimerSec] = useState<number>(3600);
+
+  useEffect(() => {
+    const updateAdminTimer = () => {
+      if (timerState.isRunning && timerState.targetEndTime) {
+        const now = Date.now();
+        const diff = Math.ceil((timerState.targetEndTime - now) / 1000);
+        setAdminTimerSec(Math.max(0, diff));
+      } else {
+        setAdminTimerSec(timerState.remainingSeconds ?? timerState.totalSeconds ?? 3600);
+      }
+    };
+    updateAdminTimer();
+    const interval = setInterval(updateAdminTimer, 200);
+    return () => clearInterval(interval);
+  }, [timerState.isRunning, timerState.targetEndTime, timerState.remainingSeconds, timerState.totalSeconds]);
+
+  const handleAdminStartTimer = () => {
+    const currentRem = adminTimerSec > 0 ? adminTimerSec : timerState.totalSeconds;
+    const targetEndTime = Date.now() + currentRem * 1000;
+    const updated: CompetitionData = {
+      ...formData,
+      timer: {
+        ...timerState,
+        remainingSeconds: currentRem,
+        targetEndTime,
+        isRunning: true,
+      },
+    };
+    commitData(updated);
+  };
+
+  const handleAdminPauseTimer = () => {
+    const updated: CompetitionData = {
+      ...formData,
+      timer: {
+        ...timerState,
+        remainingSeconds: adminTimerSec,
+        targetEndTime: null,
+        isRunning: false,
+      },
+    };
+    commitData(updated);
+  };
+
+  const handleAdminResetTimer = (seconds: number = 3600) => {
+    const updated: CompetitionData = {
+      ...formData,
+      timer: {
+        ...timerState,
+        totalSeconds: seconds,
+        remainingSeconds: seconds,
+        targetEndTime: null,
+        isRunning: false,
+      },
+    };
+    commitData(updated);
+  };
+
+  const handleAdminAdjustTimer = (deltaSeconds: number) => {
+    const newRem = Math.max(0, adminTimerSec + deltaSeconds);
+    const newTotal = Math.max(newRem, timerState.totalSeconds);
+    let targetEndTime: number | null = null;
+    if (timerState.isRunning) {
+      targetEndTime = Date.now() + newRem * 1000;
+    }
+    const updated: CompetitionData = {
+      ...formData,
+      timer: {
+        ...timerState,
+        totalSeconds: newTotal,
+        remainingSeconds: newRem,
+        targetEndTime,
+      },
+    };
+    commitData(updated);
+  };
+
+  const formatMinSec = (totalSec: number) => {
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   const handleToggleAutoRanking = () => {
     const updated: CompetitionData = {
@@ -445,6 +538,39 @@ export const AdminPage: React.FC = () => {
             {autoRankingEnabled ? '⚡ AUTO XẾP HẠNG: BẬT' : '🔒 AUTO XẾP HẠNG: TẮT (GÁN HUY CHƯƠNG MANUALLY)'}
           </button>
 
+          {/* Quick Realtime Timer Controls on Header */}
+          <div className="flex items-center gap-1.5 bg-slate-950 px-3 py-1 rounded-full border border-amber-500/40 shadow text-xs">
+            <Timer className="w-3.5 h-3.5 text-amber-400" />
+            <span className="font-mono font-bold text-amber-300 w-12 text-center">
+              {formatMinSec(adminTimerSec)}
+            </span>
+            {!timerState.isRunning ? (
+              <button
+                onClick={handleAdminStartTimer}
+                disabled={adminTimerSec === 0}
+                className="p-1 bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 rounded-full transition disabled:opacity-40"
+                title="Bắt đầu đếm ngược real-time"
+              >
+                <Play className="w-3 h-3 fill-current" />
+              </button>
+            ) : (
+              <button
+                onClick={handleAdminPauseTimer}
+                className="p-1 bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 rounded-full transition"
+                title="Tạm dừng đếm ngược"
+              >
+                <Pause className="w-3 h-3 fill-current" />
+              </button>
+            )}
+            <button
+              onClick={() => handleAdminResetTimer(3600)}
+              className="p-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full transition"
+              title="Reset 60 phút"
+            >
+              <RotateCcw className="w-3 h-3" />
+            </button>
+          </div>
+
           <a
             href="#time"
             target="_blank"
@@ -452,7 +578,7 @@ export const AdminPage: React.FC = () => {
             className="flex items-center gap-1 sm:gap-1.5 bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 font-bold text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-amber-500/50 transition"
           >
             <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-            <span>TIMER 60P</span>
+            <span>MỞ TIMER #TIME</span>
           </a>
 
           <a
@@ -489,6 +615,7 @@ export const AdminPage: React.FC = () => {
               { id: 'B_EV3', label: 'B (EV3)', shortLabel: 'EV3' },
               { id: 'B_SPIKE', label: 'B (SPIKE)', shortLabel: 'SPIKE' },
               { id: 'C', label: 'BẢNG C', shortLabel: 'C' },
+              { id: 'TIMER', label: '⏱ BẤM GIỜ 60P', shortLabel: '60P' },
               { id: 'TEAMS', label: 'QUẢN LÝ ĐỘI', shortLabel: 'ĐỘI' },
             ].map((tab) => (
               <button
@@ -1007,6 +1134,126 @@ export const AdminPage: React.FC = () => {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* TIMER CONTROL TAB */}
+          {activeTab === 'TIMER' && (
+            <div className="space-y-6 max-w-4xl mx-auto py-2">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800 pb-3 gap-2">
+                <div>
+                  <h3 className="text-amber-400 font-orbitron font-extrabold text-sm sm:text-base flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-amber-400" />
+                    ĐIỀU KHIỂN BẤM GIỜ LẮP RÁP ROBOT — REALTIME SYNC
+                  </h3>
+                  <span className="text-[10px] sm:text-xs text-slate-400 font-mono">
+                    Tất cả thao tác Bắt đầu / Tạm dừng / Reset trên trang Admin này sẽ ngay lập tức đồng bộ thời gian thực với tất cả các máy chiếu và màn hình khán giả đang xem trang /time!
+                  </span>
+                </div>
+
+                <a
+                  href="#time"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 font-orbitron font-bold text-xs px-4 py-2 rounded-xl border border-amber-500/50 transition shrink-0"
+                >
+                  <ExternalLink className="w-4 h-4" /> MỞ MÀN HÌNH BẤM GIỜ SÂN KHẤU (#TIME)
+                </a>
+              </div>
+
+              {/* Big Timer Console Box */}
+              <div className="bg-slate-950 p-6 sm:p-8 rounded-3xl border border-amber-500/30 text-center space-y-6 shadow-2xl">
+                <div className="flex items-center justify-center gap-2">
+                  <span
+                    className={`px-4 py-1.5 rounded-full font-orbitron font-extrabold text-xs uppercase border ${
+                      adminTimerSec === 0
+                        ? 'bg-rose-950 text-rose-300 border-rose-500/50 animate-bounce'
+                        : timerState.isRunning
+                        ? 'bg-emerald-950 text-emerald-300 border-emerald-500/50 animate-pulse'
+                        : 'bg-amber-950 text-amber-300 border-amber-500/50'
+                    }`}
+                  >
+                    {adminTimerSec === 0
+                      ? '🔴 HẾT GIỜ THI ĐẤU'
+                      : timerState.isRunning
+                      ? '🟢 ĐANG CHẠY REALTIME'
+                      : '🟡 ĐANG TẠM DƯNG'}
+                  </span>
+                </div>
+
+                {/* Display Digits */}
+                <div className="font-mono font-black text-6xl sm:text-8xl text-amber-300 text-glow-amber tracking-tighter">
+                  {formatMinSec(adminTimerSec)}
+                </div>
+
+                {/* Main Action Buttons */}
+                <div className="flex items-center justify-center gap-3 flex-wrap">
+                  {!timerState.isRunning ? (
+                    <button
+                      onClick={handleAdminStartTimer}
+                      disabled={adminTimerSec === 0}
+                      className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-orbitron font-black text-base px-8 py-3.5 rounded-2xl shadow-[0_0_25px_rgba(16,185,129,0.6)] active:scale-95 transition disabled:opacity-40"
+                    >
+                      <Play className="w-5 h-5 fill-current" /> BẮT ĐẦU ĐẾM NGƯỢC
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleAdminPauseTimer}
+                      className="flex items-center gap-2 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 font-orbitron font-black text-base px-8 py-3.5 rounded-2xl shadow-[0_0_25px_rgba(251,191,36,0.6)] active:scale-95 transition"
+                    >
+                      <Pause className="w-5 h-5 fill-current" /> TẠM DỪNG
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => handleAdminResetTimer(3600)}
+                    className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-amber-300 font-orbitron font-bold text-sm px-6 py-3.5 rounded-2xl border border-amber-500/40 active:scale-95 transition"
+                  >
+                    <RotateCcw className="w-4 h-4" /> RESET 60 PHÚT
+                  </button>
+
+                  <div className="flex items-center gap-2 bg-slate-900 p-1.5 rounded-2xl border border-slate-800">
+                    <button
+                      onClick={() => handleAdminAdjustTimer(-60)}
+                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-rose-400 font-bold rounded-xl text-xs transition"
+                    >
+                      -1 Phút
+                    </button>
+                    <button
+                      onClick={() => handleAdminAdjustTimer(60)}
+                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold rounded-xl text-xs transition"
+                    >
+                      +1 Phút
+                    </button>
+                  </div>
+                </div>
+
+                {/* Quick Presets */}
+                <div className="pt-4 border-t border-slate-800 flex items-center justify-center gap-2 flex-wrap">
+                  <span className="text-xs font-orbitron text-slate-400 font-bold uppercase mr-2">
+                    CHỌN MỐC THỜI GIAN:
+                  </span>
+                  {[
+                    { label: '60 Phút', sec: 3600 },
+                    { label: '45 Phút', sec: 2700 },
+                    { label: '30 Phút', sec: 1800 },
+                    { label: '15 Phút', sec: 900 },
+                    { label: '5 Phút', sec: 300 },
+                  ].map((p) => (
+                    <button
+                      key={p.sec}
+                      onClick={() => handleAdminResetTimer(p.sec)}
+                      className={`px-4 py-2 rounded-xl text-xs font-orbitron font-extrabold transition ${
+                        (timerState.totalSeconds || 3600) === p.sec
+                          ? 'bg-amber-500/20 text-amber-300 border border-amber-500/60'
+                          : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                      }`}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 
