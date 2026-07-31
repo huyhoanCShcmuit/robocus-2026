@@ -115,5 +115,14 @@ export const INITIAL_COMPETITION_DATA: CompetitionData = {
   teamsC: defaultTeamsC,
   matchesC: defaultMatchesC,
 
+  // TIMER ĐẾM NGƯỢC LẮP RÁP & LẬP TRÌNH ROBOT (60 Phút)
+  timer: {
+    totalSeconds: 3600,
+    remainingSeconds: 3600,
+    targetEndTime: null,
+    isRunning: false,
+    title: 'THỜI GIAN LẮP RÁP & LẬP TRÌNH ROBOT',
+  },
+
   lastUpdated: Date.now(),
 };

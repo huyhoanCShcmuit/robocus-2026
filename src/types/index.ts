@@ -98,6 +98,14 @@ export interface AppSettings {
   allowTiedRanks: boolean;
 }
 
+export interface TimerState {
+  totalSeconds: number; // e.g. 3600 for 60 mins
+  remainingSeconds: number; // seconds left when paused or stopped
+  targetEndTime: number | null; // Timestamp (ms) when running, null when paused
+  isRunning: boolean;
+  title?: string; // Custom header text
+}
+
 export interface CompetitionData {
   version?: number;
   settings: AppSettings;
@@ -107,5 +115,6 @@ export interface CompetitionData {
   teamsB_SPIKE: TeamB[];
   teamsC: TeamC[];
   matchesC: MatchResultC[];
+  timer?: TimerState;
   lastUpdated: number;
 }

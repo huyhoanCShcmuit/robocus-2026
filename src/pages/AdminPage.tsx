@@ -3,7 +3,7 @@ import type { CompetitionData, TeamA, TeamB, TeamC, MatchResultC } from '../type
 import { syncManager } from '../utils/syncManager';
 import { calculateRankingsB } from '../utils/rankingEngine';
 import { toSafeArray, ensureFullMatchesC } from '../utils/safeArray';
-import { Trophy, Lock, Key, Plus, Trash2, Download, Upload, RefreshCw, CheckCircle, ExternalLink, Zap, ArrowLeft } from 'lucide-react';
+import { Trophy, Lock, Key, Plus, Trash2, Download, Upload, RefreshCw, CheckCircle, ExternalLink, Zap, ArrowLeft, Clock } from 'lucide-react';
 
 const DEFAULT_PIN = '2026';
 
@@ -444,6 +444,16 @@ export const AdminPage: React.FC = () => {
           >
             {autoRankingEnabled ? '⚡ AUTO XẾP HẠNG: BẬT' : '🔒 AUTO XẾP HẠNG: TẮT (GÁN HUY CHƯƠNG MANUALLY)'}
           </button>
+
+          <a
+            href="#time"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 sm:gap-1.5 bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 font-bold text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-amber-500/50 transition"
+          >
+            <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            <span>TIMER 60P</span>
+          </a>
 
           <a
             href="#"

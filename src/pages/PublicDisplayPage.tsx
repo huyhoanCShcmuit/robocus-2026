@@ -6,7 +6,7 @@ import { Footer } from '../components/Footer';
 import { LeaderboardA } from '../components/LeaderboardA';
 import { LeaderboardB } from '../components/LeaderboardB';
 import { LeaderboardC } from '../components/LeaderboardC';
-import { Clock, Sparkles, Maximize, Minimize, ShieldCheck } from 'lucide-react';
+import { Clock, Sparkles, Maximize, Minimize, ShieldCheck, Timer } from 'lucide-react';
 
 const DIVISIONS: DivisionId[] = ['A', 'B_EV3', 'B_SPIKE', 'C'];
 const AUTO_SWITCH_MS = 15000; // 15 seconds
@@ -144,7 +144,6 @@ export const PublicDisplayPage: React.FC = () => {
 
   const progressPct = (countdown / AUTO_SWITCH_MS) * 100;
 
-
   return (
     <div className="min-h-screen bg-scifi-cyber text-white flex flex-col justify-between selection:bg-cyan-500 selection:text-slate-950 font-sans relative overflow-hidden">
       {/* Background Cyber Accents */}
@@ -195,8 +194,18 @@ export const PublicDisplayPage: React.FC = () => {
             ))}
           </div>
 
-          {/* Clock & Secure Admin Link */}
+          {/* Clock & Links */}
           <div className="flex items-center gap-2 sm:gap-3">
+            <a
+              href="#time"
+              className="flex items-center gap-1 bg-slate-900/80 hover:bg-slate-800 text-cyan-300 hover:text-cyan-200 text-[10px] font-mono px-2.5 py-1 rounded-full border border-cyan-500/40 transition shadow"
+              title="Đếm ngược 60 phút lắp ráp & lập trình robot"
+            >
+              <Timer className="w-3 h-3 text-cyan-400" />
+              <span className="hidden sm:inline">Timer 60p</span>
+              <span className="sm:hidden">60p</span>
+            </a>
+
             <div className="flex items-center gap-1.5 bg-slate-900/80 border border-slate-700/60 px-3 py-1.5 rounded-full text-slate-300 font-mono text-xs shadow">
               <Clock className="w-3.5 h-3.5 text-cyan-400" />
               <span className="font-bold">{timeStr}</span>
