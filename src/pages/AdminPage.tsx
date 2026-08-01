@@ -834,7 +834,7 @@ export const AdminPage: React.FC = () => {
                                 )
                               }
                               placeholder="0"
-                              className="w-20 sm:w-24 bg-slate-950 border-2 border-cyan-500/60 rounded-xl py-2 text-center font-mono font-black text-2xl text-yellow-300 focus:border-cyan-400 focus:outline-none shadow-inner"
+                              className="w-20 sm:w-24 bg-slate-950 border-2 border-cyan-500/60 rounded-xl py-2 text-center font-orbitron font-black text-2xl text-yellow-300 focus:border-cyan-400 focus:outline-none shadow-inner"
                             />
 
                             <span className="font-orbitron font-black text-base text-cyan-400 px-1">VS</span>
@@ -854,7 +854,7 @@ export const AdminPage: React.FC = () => {
                                 )
                               }
                               placeholder="0"
-                              className="w-20 sm:w-24 bg-slate-950 border-2 border-cyan-500/60 rounded-xl py-2 text-center font-mono font-black text-2xl text-yellow-300 focus:border-cyan-400 focus:outline-none shadow-inner"
+                              className="w-20 sm:w-24 bg-slate-950 border-2 border-cyan-500/60 rounded-xl py-2 text-center font-orbitron font-black text-2xl text-yellow-300 focus:border-cyan-400 focus:outline-none shadow-inner"
                             />
                           </div>
 
@@ -938,7 +938,7 @@ export const AdminPage: React.FC = () => {
                                           e.target.value
                                         )
                                       }
-                                      className="w-full bg-slate-950 border border-slate-700 rounded py-1 text-center font-mono text-white text-[11px] sm:text-xs font-bold focus:border-cyan-400 focus:outline-none"
+                                      className="w-full bg-slate-950 border border-slate-700 rounded py-1 text-center font-orbitron text-white text-[11px] sm:text-xs font-bold focus:border-cyan-400 focus:outline-none"
                                       placeholder="0"
                                     />
                                   </div>
@@ -1011,7 +1011,7 @@ export const AdminPage: React.FC = () => {
                                   };
                                   commitData(updated);
                                 }}
-                                className="w-14 sm:w-20 bg-slate-900 border border-amber-500/40 rounded-lg py-1.5 sm:py-2 text-center font-mono font-black text-xl sm:text-2xl text-yellow-300"
+                                className="w-14 sm:w-20 bg-slate-900 border border-amber-500/40 rounded-lg py-1.5 sm:py-2 text-center font-orbitron font-black text-xl sm:text-2xl text-yellow-300"
                               />
                               <span className="font-orbitron font-black text-slate-500 text-lg sm:text-xl">-</span>
                               <input
@@ -1028,7 +1028,7 @@ export const AdminPage: React.FC = () => {
                                   };
                                   commitData(updated);
                                 }}
-                                className="w-14 sm:w-20 bg-slate-900 border border-amber-500/40 rounded-lg py-1.5 sm:py-2 text-center font-mono font-black text-xl sm:text-2xl text-yellow-300"
+                                className="w-14 sm:w-20 bg-slate-900 border border-amber-500/40 rounded-lg py-1.5 sm:py-2 text-center font-orbitron font-black text-xl sm:text-2xl text-yellow-300"
                               />
                               <button
                                 type="button"
