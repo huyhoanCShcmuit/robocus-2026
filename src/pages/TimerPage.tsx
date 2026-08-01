@@ -135,15 +135,6 @@ export const TimerPage: React.FC = () => {
           <ArrowLeft className="w-4 h-4" /> BẢNG XẾP HẠNG
         </a>
 
-        {/* Realtime Live Indicator */}
-        <div className="flex items-center gap-2 bg-slate-900/80 border border-cyan-500/40 px-4 py-1.5 rounded-full text-cyan-300 backdrop-blur shadow-lg">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500"></span>
-          </span>
-          <span className="font-bold tracking-wider font-orbitron text-xs uppercase">ROBOCUS 2026 - TIMER LIVE</span>
-        </div>
-
         {/* Sound Toggle */}
         <div className="flex items-center gap-2 sm:gap-3">
           <button
@@ -217,19 +208,6 @@ export const TimerPage: React.FC = () => {
 
           {/* Time Digits Overlay */}
           <div className="absolute flex flex-col items-center justify-center text-center space-y-3">
-            {/* Status Badge */}
-            <span
-              className={`px-4 py-1.5 rounded-full font-orbitron font-black text-xs sm:text-sm tracking-widest uppercase border shadow-lg ${
-                isFinished
-                  ? 'bg-rose-950/90 text-rose-300 border-rose-500/50 animate-bounce'
-                  : timerState.isRunning
-                  ? 'bg-emerald-950/90 text-emerald-300 border-emerald-500/50 animate-pulse'
-                  : 'bg-amber-950/90 text-amber-300 border-amber-500/50'
-              }`}
-            >
-              {isFinished ? '🔴 HẾT GIỜ THI ĐẤU' : timerState.isRunning ? '🟢 ĐANG CHẠY' : '🟡 TẠM DỪNG'}
-            </span>
-
             {/* Giant Digits */}
             <div
               className={`font-mono font-black text-7xl sm:text-9xl tracking-tighter ${
