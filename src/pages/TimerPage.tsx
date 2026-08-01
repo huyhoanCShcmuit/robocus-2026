@@ -251,10 +251,10 @@ export const TimerPage: React.FC = () => {
         </div>
       </main>
 
-      {/* Fullscreen Floating Button */}
+      {/* Fullscreen Floating Button (z-50, position well above footer) */}
       <button
         onClick={toggleFullscreen}
-        className="fixed bottom-14 sm:bottom-16 right-4 sm:right-6 z-30 bg-slate-900/90 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 p-3 rounded-full border border-cyan-500/50 shadow-2xl backdrop-blur transition-all duration-300"
+        className="fixed bottom-16 sm:bottom-20 md:bottom-24 right-4 sm:right-6 z-50 bg-slate-900/90 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 p-3 rounded-full border border-cyan-500/50 shadow-[0_0_20px_rgba(6,182,212,0.6)] backdrop-blur transition-all duration-300 active:scale-95"
         title="Bật/Tắt Toàn Màn Hình Máy Chiếu"
       >
         {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}

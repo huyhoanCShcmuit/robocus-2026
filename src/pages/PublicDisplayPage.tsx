@@ -181,55 +181,60 @@ export const PublicDisplayPage: React.FC = () => {
 
       {/* Header Bar */}
       <header className="w-full relative z-20 pt-2 sm:pt-3 pb-1 px-3 sm:px-6 flex flex-col items-center shrink-0">
-        <div className="w-full flex flex-wrap items-center justify-between gap-2 mb-1 text-xs">
-          {/* Realtime Live Indicator */}
-          <div className="flex items-center gap-2 bg-slate-900/80 border border-cyan-500/40 px-3 py-1 rounded-full text-cyan-300 backdrop-blur shadow-lg">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-            </span>
-            <span className="font-bold tracking-wider font-orbitron text-[10px] sm:text-[11px] uppercase">STAGE DISPLAY - LIVE SYNC</span>
-          </div>
+        {/* Top Control Bar Grid */}
+        <div className="w-full grid grid-cols-1 md:grid-cols-3 items-center justify-between gap-2 mb-1 text-xs">
+          {/* Left Zone: Live Sync Indicator & Paginate Mode Toggle */}
+          <div className="flex items-center justify-center md:justify-start gap-2">
+            <div className="flex items-center gap-1.5 bg-slate-900/80 border border-cyan-500/40 px-3 py-1 rounded-full text-cyan-300 backdrop-blur shadow">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="font-bold tracking-wider font-orbitron text-[10px] sm:text-[11px] uppercase">STAGE LIVE</span>
+            </div>
 
-          {/* Division Selector Tabs - Scrollable on mobile */}
-          <div className="flex items-center gap-1.5 bg-slate-900/90 p-1 rounded-xl border border-cyan-500/30 backdrop-blur shadow-2xl overflow-x-auto max-w-full no-scrollbar">
-            {[
-              { id: 'A', label: 'BẢNG A' },
-              { id: 'B_EV3', label: 'BẢNG B - EV3' },
-              { id: 'B_SPIKE', label: 'BẢNG B - SPIKE' },
-              { id: 'C', label: 'BẢNG C' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => handleDivisionChange(tab.id as DivisionId)}
-                className={`px-3 sm:px-4 py-1.5 rounded-lg font-orbitron font-extrabold text-xs whitespace-nowrap transition-all duration-300 ${
-                  activeDivision === tab.id
-                    ? 'bg-cyan-500 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.8)] scale-105'
-                    : 'text-cyan-400 hover:text-white hover:bg-slate-800/60'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Controls: Paginate Mode & Timer 60p */}
-          <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={() => {
                 setPaginateMode(!paginateMode);
                 setPageIndex(0);
               }}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-orbitron font-extrabold border transition shadow ${
+              className={`flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-orbitron font-extrabold border transition shadow ${
                 paginateMode
                   ? 'bg-amber-500 text-slate-950 border-amber-400 font-black shadow-amber-500/40'
                   : 'bg-slate-900/90 text-cyan-300 border-cyan-500/40 hover:bg-slate-800'
               }`}
               title="Chuyển chế độ: Hiển thị tất cả đội / Chia trang 4 đội chữ to"
             >
-              <span>{paginateMode ? '📄 CHIA TRANG (4 ĐỘI/TRANG)' : '📊 CHẾ ĐỘ HIỂN THỊ TẤT CẢ'}</span>
+              <span>{paginateMode ? '📄 CHIA TRANG (4 ĐỘI/TRANG)' : '📊 HIỂN THỊ TẤT CẢ'}</span>
             </button>
+          </div>
 
+          {/* Center Zone: Division Selector Tabs */}
+          <div className="flex items-center justify-center">
+            <div className="flex items-center gap-1 sm:gap-1.5 bg-slate-900/90 p-1 rounded-xl border border-cyan-500/30 backdrop-blur shadow-2xl overflow-x-auto max-w-full no-scrollbar">
+              {[
+                { id: 'A', label: 'BẢNG A' },
+                { id: 'B_EV3', label: 'BẢNG B - EV3' },
+                { id: 'B_SPIKE', label: 'BẢNG B - SPIKE' },
+                { id: 'C', label: 'BẢNG C' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => handleDivisionChange(tab.id as DivisionId)}
+                  className={`px-3 sm:px-4 py-1.5 rounded-lg font-orbitron font-extrabold text-xs whitespace-nowrap transition-all duration-300 ${
+                    activeDivision === tab.id
+                      ? 'bg-cyan-500 text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.8)] scale-105'
+                      : 'text-cyan-400 hover:text-white hover:bg-slate-800/60'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Zone: Timer 60p & Admin Portal */}
+          <div className="flex items-center justify-center md:justify-end gap-2 sm:gap-3">
             <a
               href="#time"
               className="flex items-center gap-1.5 bg-slate-900/90 hover:bg-slate-800 text-amber-300 hover:text-amber-200 text-xs font-orbitron font-extrabold px-3 sm:px-4 py-1.5 rounded-full border border-amber-500/40 transition shadow"
@@ -274,12 +279,10 @@ export const PublicDisplayPage: React.FC = () => {
         </AutoFitContainer>
       </main>
 
-
-
-      {/* Fullscreen Button */}
+      {/* Floating Fullscreen Button (z-50, position well above footer) */}
       <button
         onClick={toggleFullscreen}
-        className="fixed bottom-14 sm:bottom-16 right-4 sm:right-6 z-30 bg-slate-900/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 p-2.5 sm:p-3 rounded-full border border-cyan-500/50 shadow-2xl backdrop-blur transition-all duration-300"
+        className="fixed bottom-16 sm:bottom-20 md:bottom-24 right-4 sm:right-6 z-50 bg-slate-900/90 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 p-2.5 sm:p-3 rounded-full border border-cyan-500/50 shadow-[0_0_20px_rgba(6,182,212,0.6)] backdrop-blur transition-all duration-300 active:scale-95"
         title="Bật/Tắt Toàn Màn Hình Máy Chiếu"
       >
         {isFullscreen ? <Minimize className="w-4 h-4 sm:w-5 sm:h-5" /> : <Maximize className="w-4 h-4 sm:w-5 sm:h-5" />}
