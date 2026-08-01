@@ -101,7 +101,7 @@ export const LeaderboardB: React.FC<LeaderboardBProps> = ({ teams = [], autoRank
                     </div>
 
                     {/* 6. Nhiệm vụ 1 -> 8 */}
-                    <div className="flex-1 grid grid-cols-8 gap-2 text-center font-mono font-bold text-base sm:text-lg">
+                    <div className="flex-1 grid grid-cols-8 gap-2 text-center font-orbitron font-bold text-base sm:text-lg">
                       {Array.from({ length: 8 }).map((_, idx) => {
                         const score = taskMaxScores[idx];
                         return (

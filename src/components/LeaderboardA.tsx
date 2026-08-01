@@ -90,7 +90,7 @@ export const LeaderboardA: React.FC<LeaderboardAProps> = ({ teams = [], autoRank
                     </div>
 
                     {/* Match Scores TRẬN 1..8 */}
-                    <div className="flex-1 grid grid-cols-8 gap-1 text-center font-mono font-bold text-base sm:text-lg">
+                    <div className="flex-1 grid grid-cols-8 gap-1 text-center font-orbitron font-bold text-base sm:text-lg">
                       {Array.from({ length: 8 }).map((_, idx) => {
                         const score = scores[idx];
                         return (
