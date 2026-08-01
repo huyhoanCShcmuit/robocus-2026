@@ -59,21 +59,18 @@ export const PublicDisplayPage: React.FC = () => {
 
     // Rotate division / page
     rotateTimerRef.current = setInterval(() => {
-      if (paginateMode) {
-        setPageIndex((prevPage) => {
-          if (prevPage === 0) return 1;
-          setActiveDivision((prevDiv) => {
-            const idx = DIVISIONS.indexOf(prevDiv);
-            return DIVISIONS[(idx + 1) % DIVISIONS.length];
-          });
-          return 0;
-        });
-      } else {
-        setActiveDivision((prevDiv) => {
-          const idx = DIVISIONS.indexOf(prevDiv);
+      setActiveDivision((currentDiv) => {
+        if (paginateMode && currentDiv !== 'C' && pageIndex === 0) {
+          // Go to page 2 of current division
+          setPageIndex(1);
+          return currentDiv;
+        } else {
+          // Go to next division and reset pageIndex to 0
+          setPageIndex(0);
+          const idx = DIVISIONS.indexOf(currentDiv);
           return DIVISIONS[(idx + 1) % DIVISIONS.length];
-        });
-      }
+        }
+      });
 
       countdownRef.current = AUTO_SWITCH_MS;
       lastTickRef.current = Date.now();
@@ -275,7 +272,7 @@ export const PublicDisplayPage: React.FC = () => {
           {activeDivision === 'A' && <LeaderboardA teams={getPagedTeams(rankedA)} autoRankingEnabled={autoRankingEnabled} />}
           {activeDivision === 'B_EV3' && <LeaderboardB teams={getPagedTeams(rankedB_EV3)} autoRankingEnabled={autoRankingEnabled} />}
           {activeDivision === 'B_SPIKE' && <LeaderboardB teams={getPagedTeams(rankedB_SPIKE)} autoRankingEnabled={autoRankingEnabled} />}
-          {activeDivision === 'C' && <LeaderboardC teams={getPagedTeams(rankedC)} autoRankingEnabled={autoRankingEnabled} />}
+          {activeDivision === 'C' && <LeaderboardC teams={rankedC} autoRankingEnabled={autoRankingEnabled} />}
         </AutoFitContainer>
       </main>
 
