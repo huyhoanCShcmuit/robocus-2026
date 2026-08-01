@@ -22,12 +22,12 @@ export const LeaderboardA: React.FC<LeaderboardAProps> = ({ teams = [], autoRank
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 py-2 flex flex-col flex-1 justify-start overflow-hidden">
+    <div className="w-full max-w-[96vw] xl:max-w-[1650px] mx-auto px-2 sm:px-6 py-1 flex flex-col flex-1 justify-start overflow-hidden">
       {/* Horizontal Scroll Wrapper for Mobile */}
-      <div className="w-full overflow-x-auto pb-4 pt-1">
-        <div className="min-w-[768px] md:min-w-full">
+      <div className="w-full overflow-x-auto pb-2 pt-1 no-scrollbar">
+        <div className="min-w-[1000px] md:min-w-full">
           {/* Table Header Row */}
-          <div className="flex items-center gap-2 px-4 sm:px-6 py-2 text-cyan-300 font-orbitron font-extrabold text-xs sm:text-sm uppercase tracking-widest text-glow-cyan mb-1">
+          <div className="flex items-center gap-2 px-6 sm:px-8 py-2 text-cyan-300 font-orbitron font-extrabold text-xs sm:text-sm uppercase tracking-widest text-glow-cyan mb-1">
             {/* Left Info Panel */}
             <div className="flex items-center shrink-0 w-[320px] sm:w-[460px]">
               <div className="w-20 sm:w-28 text-left pl-2 sm:pl-4">ĐỘI</div>

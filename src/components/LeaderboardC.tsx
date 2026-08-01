@@ -21,12 +21,12 @@ export const LeaderboardC: React.FC<LeaderboardCProps> = ({ teams = [], autoRank
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-2 sm:px-4 py-2 flex flex-col flex-1 justify-start overflow-hidden">
+    <div className="w-full max-w-[96vw] xl:max-w-[1650px] mx-auto px-2 sm:px-6 py-1 flex flex-col flex-1 justify-start overflow-hidden">
       {/* Horizontal Scroll Wrapper for Mobile */}
-      <div className="w-full overflow-x-auto pb-4 pt-1">
-        <div className="min-w-[850px] md:min-w-full">
+      <div className="w-full overflow-x-auto pb-2 pt-1 no-scrollbar">
+        <div className="min-w-[1000px] md:min-w-full">
           {/* Table Header Row */}
-          <div className="flex items-center text-cyan-300 font-orbitron font-extrabold text-xs sm:text-sm uppercase tracking-widest text-glow-cyan text-center py-2.5 mb-1">
+          <div className="flex items-center px-6 sm:px-8 text-cyan-300 font-orbitron font-extrabold text-xs sm:text-sm uppercase tracking-widest text-glow-cyan text-center py-2 mb-1">
             <div className="w-36 sm:w-48 text-center pl-2">ĐỘI</div>
             <div className="flex-1 text-center">SỐ TRẬN</div>
             <div className="flex-1 text-center">TỔNG ĐIỂM</div>
@@ -49,7 +49,7 @@ export const LeaderboardC: React.FC<LeaderboardCProps> = ({ teams = [], autoRank
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-                  className={`flex items-center py-1.5 sm:py-2 md:py-2.5 pill-row ${getPillClass(
+                  className={`flex items-center px-6 sm:px-8 py-2 md:py-2.5 pill-row ${getPillClass(
                     team
                   )} text-center font-orbitron font-black text-base sm:text-lg`}
                 >
