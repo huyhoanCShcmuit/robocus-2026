@@ -114,7 +114,7 @@ export const TimerPage: React.FC = () => {
   const progressPct = Math.min(100, Math.max(0, (displaySeconds / totalSec) * 100));
 
   // Circle SVG math
-  const radius = 180;
+  const radius = 230;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progressPct / 100) * circumference;
 
@@ -148,7 +148,7 @@ export const TimerPage: React.FC = () => {
       </header>
 
       {/* Main Timer Display (Pure Display View - Only Controlled by Admin) */}
-      <main className="flex-1 flex flex-col justify-center items-center px-4 py-4 z-10 w-full max-w-5xl mx-auto text-center space-y-6">
+      <main className="flex-1 flex flex-col justify-center items-center px-4 py-4 z-10 w-full max-w-6xl mx-auto text-center space-y-6">
         {/* Sci-Fi Title */}
         <div className="space-y-2">
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-black font-orbitron tracking-wider text-white text-glow-cyan uppercase flex items-center justify-center gap-3">
@@ -161,29 +161,29 @@ export const TimerPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Circular SVG Timer & Display */}
-        <div className="relative flex items-center justify-center my-4">
-          <svg className="w-80 h-80 sm:w-[420px] sm:h-[420px] transform -rotate-90" viewBox="0 0 400 400">
+        {/* Circular SVG Timer & Display (Enlarged) */}
+        <div className="relative flex items-center justify-center my-2">
+          <svg className="w-[340px] h-[340px] sm:w-[500px] sm:h-[500px] md:w-[560px] md:h-[560px] transform -rotate-90" viewBox="0 0 500 500">
             {/* Outer Glow Background Circle */}
             <circle
-              cx="200"
-              cy="200"
+              cx="250"
+              cy="250"
               r={radius}
               className="stroke-slate-900/80 fill-slate-950/80"
-              strokeWidth="20"
+              strokeWidth="24"
             />
             {/* Track Circle */}
             <circle
-              cx="200"
-              cy="200"
+              cx="250"
+              cy="250"
               r={radius}
               className="stroke-slate-800/80 fill-none"
-              strokeWidth="12"
+              strokeWidth="16"
             />
             {/* Animated Progress Ring */}
             <circle
-              cx="200"
-              cy="200"
+              cx="250"
+              cy="250"
               r={radius}
               className={`fill-none transition-all duration-300 ${
                 isFinished
@@ -192,16 +192,16 @@ export const TimerPage: React.FC = () => {
                   ? 'stroke-amber-400'
                   : 'stroke-cyan-400'
               }`}
-              strokeWidth="14"
+              strokeWidth="18"
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
               style={{
                 filter: isFinished
-                  ? 'drop-shadow(0 0 20px rgba(244,63,94,0.8))'
+                  ? 'drop-shadow(0 0 25px rgba(244,63,94,0.9))'
                   : displaySeconds <= 300
-                  ? 'drop-shadow(0 0 20px rgba(251,191,36,0.8))'
-                  : 'drop-shadow(0 0 20px rgba(6,182,212,0.8))',
+                  ? 'drop-shadow(0 0 25px rgba(251,191,36,0.9))'
+                  : 'drop-shadow(0 0 25px rgba(6,182,212,0.9))',
               }}
             />
           </svg>
@@ -210,7 +210,7 @@ export const TimerPage: React.FC = () => {
           <div className="absolute flex flex-col items-center justify-center text-center space-y-3">
             {/* Giant Digits */}
             <div
-              className={`font-mono font-black text-7xl sm:text-9xl tracking-tighter ${
+              className={`font-mono font-black text-7xl sm:text-[9rem] md:text-[10.5rem] tracking-tighter ${
                 isFinished
                   ? 'text-rose-400 text-glow-rose'
                   : displaySeconds <= 300
