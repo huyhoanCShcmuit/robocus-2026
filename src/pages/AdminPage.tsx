@@ -302,7 +302,7 @@ export const AdminPage: React.FC = () => {
     commitData(updated);
   };
 
-  // Handle Match Pairing Score Change for Bảng A (36 Round Robin Matches)
+  // Handle Match Pairing Score Change for Bảng A (18 Matches)
   const handlePairScoreChangeA = (matchId: string, team1Id: string, team2Id: string, val1: string, val2: string) => {
     const s1 = val1 === '' ? null : Math.min(100, Math.max(0, parseInt(val1) || 0));
     const s2 = val2 === '' ? null : Math.min(100, Math.max(0, parseInt(val2) || 0));
@@ -735,7 +735,7 @@ export const AdminPage: React.FC = () => {
 
                     {/* Quick Match Selector Dropdown */}
                     <div className="pt-2 border-t border-slate-900 flex flex-col sm:flex-row items-start sm:items-center gap-1.5 sm:gap-2">
-                      <span className="text-[10px] text-slate-400 font-mono shrink-0">Hoặc chọn nhanh từ danh sách 36 trận:</span>
+                      <span className="text-[10px] text-slate-400 font-mono shrink-0">Hoặc chọn nhanh từ danh sách 18 trận:</span>
                       <select
                         onChange={(e) => {
                           const mId = e.target.value;
@@ -747,7 +747,7 @@ export const AdminPage: React.FC = () => {
                         }}
                         className="w-full sm:w-auto bg-slate-900 border border-slate-800 text-cyan-300 text-xs font-mono rounded-lg px-2.5 py-1.5 focus:outline-none flex-1"
                       >
-                        <option value="">-- Danh sách 36 Trận Đấu Vòng Tròn --</option>
+                        <option value="">-- Danh sách 18 Trận Đấu --</option>
                         {(formData?.matchesA || []).map((m, idx) => {
                           const t1 = (formData?.teamsA || []).find((t) => t.id === m.team1Id);
                           const t2 = (formData?.teamsA || []).find((t) => t.id === m.team2Id);
