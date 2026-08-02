@@ -7,7 +7,7 @@ export const App: React.FC = () => {
   const [route, setRoute] = useState<'display' | 'admin' | 'time'>(() => {
     const hash = window.location.hash.toLowerCase();
     const pathname = window.location.pathname.toLowerCase();
-    if (hash === '#admin' || pathname === '/admin') {
+    if (hash === '#portal' || pathname === '/portal') {
       return 'admin';
     }
     if (hash === '#time' || pathname === '/time' || hash === '#timer' || pathname === '/timer') {
@@ -20,7 +20,7 @@ export const App: React.FC = () => {
     const handleRouteChange = () => {
       const hash = window.location.hash.toLowerCase();
       const pathname = window.location.pathname.toLowerCase();
-      if (hash === '#admin' || pathname === '/admin') {
+      if (hash === '#portal' || pathname === '/portal') {
         setRoute('admin');
       } else if (hash === '#time' || pathname === '/time' || hash === '#timer' || pathname === '/timer') {
         setRoute('time');

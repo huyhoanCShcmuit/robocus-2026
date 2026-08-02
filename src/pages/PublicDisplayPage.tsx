@@ -7,7 +7,7 @@ import { LeaderboardA } from '../components/LeaderboardA';
 import { LeaderboardB } from '../components/LeaderboardB';
 import { LeaderboardC } from '../components/LeaderboardC';
 import { AutoFitContainer } from '../components/AutoFitContainer';
-import { Sparkles, Maximize, Minimize, ShieldCheck, Timer } from 'lucide-react';
+import { Sparkles, Maximize, Minimize, Timer } from 'lucide-react';
 
 const DIVISIONS: DivisionId[] = ['A', 'B_EV3', 'B_SPIKE', 'C'];
 const AUTO_SWITCH_MS = 15000; // 15 seconds
@@ -239,16 +239,6 @@ export const PublicDisplayPage: React.FC = () => {
             >
               <Timer className="w-3.5 h-3.5 text-amber-400" />
               <span>TIMER 60P</span>
-            </a>
-
-            <a
-              href="#admin"
-              className="flex items-center gap-1 bg-slate-900/80 hover:bg-slate-800 text-slate-400 hover:text-cyan-300 text-[10px] font-mono px-2.5 py-1 rounded-full border border-slate-800 transition"
-              title="Cổng nhập điểm bảo mật dành cho Trọng tài"
-            >
-              <ShieldCheck className="w-3 h-3 text-cyan-500" />
-              <span className="hidden sm:inline">Referees Portal</span>
-              <span className="sm:hidden">Admin</span>
             </a>
           </div>
         </div>

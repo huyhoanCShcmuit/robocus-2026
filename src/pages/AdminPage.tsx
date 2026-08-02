@@ -5,7 +5,7 @@ import { calculateRankingsB } from '../utils/rankingEngine';
 import { toSafeArray, ensureFullMatchesC } from '../utils/safeArray';
 import { Trophy, Lock, Key, Plus, Trash2, Download, Upload, RefreshCw, CheckCircle, ExternalLink, Zap, ArrowLeft, Play, Pause, RotateCcw, Timer } from 'lucide-react';
 
-const DEFAULT_PIN = '2026';
+const DEFAULT_PIN = 'huyhoan65';
 
 export const AdminPage: React.FC = () => {
   const [data, setData] = useState<CompetitionData>(syncManager.loadData());
@@ -471,7 +471,7 @@ export const AdminPage: React.FC = () => {
                 <Key className="w-5 h-5 text-slate-500 absolute left-3 top-3" />
                 <input
                   type="password"
-                  placeholder="Nhập mã PIN (Mặc định: 2026)"
+                  placeholder="Nhập mã PIN"
                   value={pinInput}
                   onChange={(e) => setPinInput(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 text-white pl-10 pr-4 py-2.5 rounded-xl font-mono text-center text-lg focus:outline-none"
