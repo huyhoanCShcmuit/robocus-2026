@@ -96,7 +96,7 @@ export const INITIAL_COMPETITION_DATA: CompetitionData = {
     division: 'B_EV3' as const,
     rounds: Array.from({ length: 5 }).map((__, rIdx) => ({
       roundIndex: rIdx,
-      tasks: new Array(8).fill(0),
+      tasks: new Array(8).fill(null),
     })),
   })),
 
@@ -107,7 +107,7 @@ export const INITIAL_COMPETITION_DATA: CompetitionData = {
     division: 'B_SPIKE' as const,
     rounds: Array.from({ length: 5 }).map((__, rIdx) => ({
       roundIndex: rIdx,
-      tasks: new Array(8).fill(0),
+      tasks: new Array(8).fill(null),
     })),
   })),
 

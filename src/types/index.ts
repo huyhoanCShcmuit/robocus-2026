@@ -36,7 +36,7 @@ export interface RankedTeamA extends TeamA {
 // ----------------- BẢNG B -----------------
 export interface RoundScoreB {
   roundIndex: number; // 0..4 (Lượt 1 .. Lượt 5)
-  tasks: number[]; // 8 tasks scores
+  tasks: (number | null)[]; // 8 tasks scores
 }
 
 export interface TeamB extends BaseTeam {

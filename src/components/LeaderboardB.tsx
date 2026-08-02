@@ -53,7 +53,7 @@ export const LeaderboardB: React.FC<LeaderboardBProps> = ({ teams = [], autoRank
               {safeTeams.map((team) => {
                 const rounds = toSafeArray<any>(team.rounds);
                 const taskMaxScores = toSafeArray<number>(team.taskMaxScores);
-                const roundsPlayed = rounds.filter((r) => toSafeArray<number>(r?.tasks).some((val) => val > 0)).length;
+                const roundsPlayed = rounds.filter((r) => toSafeArray<any>(r?.tasks).some((val) => val !== null && val !== undefined && val !== '')).length;
 
                 return (
                   <motion.div

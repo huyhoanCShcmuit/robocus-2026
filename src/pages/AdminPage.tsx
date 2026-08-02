@@ -442,7 +442,7 @@ export const AdminPage: React.FC = () => {
     taskIdx: number,
     val: string
   ) => {
-    const num = Math.max(0, parseInt(val) || 0);
+    const num = val === '' ? null : Math.max(0, parseInt(val) || 0);
     const key = div === 'B_EV3' ? 'teamsB_EV3' : 'teamsB_SPIKE';
     const currentTeams = toSafeArray<TeamB>(formData?.[key]);
 
@@ -452,9 +452,9 @@ export const AdminPage: React.FC = () => {
         if (t.id === teamId) {
           const newRounds = toSafeArray<any>(t.rounds).map((rd) => {
             if (rd.roundIndex === roundIdx) {
-              const newTasks = [...toSafeArray<number>(rd.tasks)];
+              const newTasks = [...toSafeArray<number | null>(rd.tasks)];
               if (newTasks.length < 8) {
-                while (newTasks.length < 8) newTasks.push(0);
+                while (newTasks.length < 8) newTasks.push(null);
               }
               newTasks[taskIdx] = num;
               return { ...rd, tasks: newTasks };
