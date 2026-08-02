@@ -14,18 +14,14 @@ const defaultTeamsA = [
 
 const defaultMatchesA: MatchResultA[] = [];
 let matchCount = 0;
-// Generate exactly 18 matches for 9 teams (each team plays exactly 4 matches)
-for (let step = 1; step <= 2; step++) {
-  for (let i = 0; i < defaultTeamsA.length; i++) {
-    const j = (i + step) % defaultTeamsA.length;
-    const t1 = Math.min(i, j);
-    const t2 = Math.max(i, j);
-    const roundIdx = Math.floor(matchCount / 2); // 9 rounds of 2 matches = 18 matches
+for (let i = 0; i < defaultTeamsA.length; i++) {
+  for (let j = i + 1; j < defaultTeamsA.length; j++) {
+    const roundIdx = Math.floor(matchCount / 4); // 9 rounds of 4 matches = 36 matches
     defaultMatchesA.push({
-      id: `ma_${defaultTeamsA[t1].id}_${defaultTeamsA[t2].id}`,
+      id: `ma_${defaultTeamsA[i].id}_${defaultTeamsA[j].id}`,
       matchIdx: roundIdx,
-      team1Id: defaultTeamsA[t1].id,
-      team2Id: defaultTeamsA[t2].id,
+      team1Id: defaultTeamsA[i].id,
+      team2Id: defaultTeamsA[j].id,
       score1: null,
       score2: null,
       winnerId: null,
@@ -89,7 +85,7 @@ export const INITIAL_COMPETITION_DATA: CompetitionData = {
     allowTiedRanks: true,
   },
 
-  // BẢNG A: Đầy đủ 9 Đội (A01 đến A09) & 18 trận đấu vòng tròn
+  // BẢNG A: Đầy đủ 9 Đội (A01 đến A09) & 36 trận đấu vòng tròn
   teamsA: defaultTeamsA,
   matchesA: defaultMatchesA,
 
