@@ -161,6 +161,9 @@ class SyncManager {
           const dbRef = ref(db, 'leaderboard_data');
           set(dbRef, updatedData).catch((e) => {
             console.warn('Firebase save warning (non-fatal):', e);
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent('firebase-sync-error', { detail: e }));
+            }
           });
         } catch (e) {
           console.warn('Firebase set error:', e);

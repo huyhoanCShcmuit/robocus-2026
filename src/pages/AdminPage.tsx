@@ -18,6 +18,7 @@ export const AdminPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'A' | 'B_EV3' | 'B_SPIKE' | 'C' | 'TEAMS' | 'TIMER'>('A');
   const [formData, setFormData] = useState<CompetitionData>(JSON.parse(JSON.stringify(data)));
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [firebaseError, setFirebaseError] = useState<string | null>(null);
 
   // New Team Form State
   const [newTeamName, setNewTeamName] = useState('');
@@ -90,6 +91,16 @@ export const AdminPage: React.FC = () => {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.teamsA, formData.matchesA]);
+
+  // Listen for Firebase errors
+  useEffect(() => {
+    const handleFirebaseError = (e: Event) => {
+      const error = (e as CustomEvent).detail;
+      setFirebaseError(error?.message || 'Lỗi ghi dữ liệu lên Firebase.');
+    };
+    window.addEventListener('firebase-sync-error', handleFirebaseError);
+    return () => window.removeEventListener('firebase-sync-error', handleFirebaseError);
+  }, []);
 
   // Handle PIN authentication
   const handleLogin = (e: React.FormEvent) => {
@@ -539,6 +550,12 @@ export const AdminPage: React.FC = () => {
           {saveSuccess && (
             <span className="flex items-center gap-1 text-emerald-400 text-[10px] sm:text-xs font-bold bg-emerald-950/80 px-2.5 sm:px-3 py-1 rounded-full border border-emerald-500/40">
               <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4" /> OK!
+            </span>
+          )}
+
+          {firebaseError && (
+            <span className="flex items-center gap-1 text-rose-400 text-[10px] sm:text-xs font-bold bg-rose-950/80 px-2.5 sm:px-3 py-1 rounded-full border border-rose-500/40">
+              ⚠️ Lỗi Firebase: {firebaseError} (Hãy mở Rules của Database thành ".write": true)
             </span>
           )}
 
