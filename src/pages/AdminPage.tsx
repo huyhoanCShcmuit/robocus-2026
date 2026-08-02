@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import type { CompetitionData, TeamA, TeamB, TeamC, MatchResultC, TimerState } from '../types';
+import type { CompetitionData, TeamA, TeamB, TeamC, MatchResultA, MatchResultC, TimerState } from '../types';
 import { syncManager } from '../utils/syncManager';
 import { calculateRankingsB } from '../utils/rankingEngine';
-import { toSafeArray, ensureFullMatchesC } from '../utils/safeArray';
+import { toSafeArray, ensureFullMatchesA, ensureFullMatchesC } from '../utils/safeArray';
 import { Trophy, Lock, Key, Plus, Trash2, Download, Upload, RefreshCw, CheckCircle, ExternalLink, Zap, ArrowLeft, Play, Pause, RotateCcw, Timer } from 'lucide-react';
 
 const DEFAULT_PIN = 'huyhoan65';
@@ -74,6 +74,22 @@ export const AdminPage: React.FC = () => {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.teamsC, formData.matchesC]);
+
+  // Auto-ensure full round robin matches for Bảng A
+  useEffect(() => {
+    const teamsA = toSafeArray<TeamA>(formData.teamsA);
+    if (teamsA.length < 2) return;
+    const fullMatches = ensureFullMatchesA(teamsA, formData.matchesA);
+    const currentMatches = toSafeArray<MatchResultA>(formData.matchesA);
+    if (fullMatches.length !== currentMatches.length) {
+      const updated: CompetitionData = {
+        ...formData,
+        matchesA: fullMatches,
+      };
+      commitData(updated);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.teamsA, formData.matchesA]);
 
   // Handle PIN authentication
   const handleLogin = (e: React.FormEvent) => {

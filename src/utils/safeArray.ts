@@ -1,4 +1,4 @@
-import type { TeamC, MatchResultC } from '../types';
+import type { TeamC, MatchResultC, TeamA, MatchResultA } from '../types';
 
 export function toSafeArray<T>(val: any): T[] {
   if (!val) return [];
@@ -7,6 +7,69 @@ export function toSafeArray<T>(val: any): T[] {
     return Object.values(val) as T[];
   }
   return [];
+}
+
+/**
+ * Ensures a complete round-robin match list for Bảng A.
+ * Preserves all existing match scores, states, and IDs.
+ */
+export function ensureFullMatchesA(teamsAInput: any, matchesAInput: any): MatchResultA[] {
+  const teams = toSafeArray<TeamA>(teamsAInput);
+  const matches = toSafeArray<MatchResultA>(matchesAInput);
+
+  if (teams.length < 2) return [];
+
+  const teamIds = new Set(teams.map((t) => t.id));
+
+  // Map existing matches by sorted key `${minId}__${maxId}`
+  const existingMap = new Map<string, MatchResultA>();
+  matches.forEach((m) => {
+    if (!m || !m.team1Id || !m.team2Id) return;
+    if (!teamIds.has(m.team1Id) || !teamIds.has(m.team2Id)) return;
+
+    const t1 = m.team1Id;
+    const t2 = m.team2Id;
+    const minId = t1 < t2 ? t1 : t2;
+    const maxId = t1 < t2 ? t2 : t1;
+    const key = `${minId}__${maxId}`;
+    existingMap.set(key, m);
+  });
+
+  const result: MatchResultA[] = [];
+  let matchCount = 0;
+
+  for (let i = 0; i < teams.length; i++) {
+    for (let j = i + 1; j < teams.length; j++) {
+      const t1 = teams[i].id;
+      const t2 = teams[j].id;
+      const minId = t1 < t2 ? t1 : t2;
+      const maxId = t1 < t2 ? t2 : t1;
+      const key = `${minId}__${maxId}`;
+
+      const roundIdx = Math.floor(matchCount / 4);
+
+      if (existingMap.has(key)) {
+        const existing = existingMap.get(key)!;
+        result.push({
+          ...existing,
+          matchIdx: roundIdx,
+        });
+      } else {
+        result.push({
+          id: `ma_${minId}_${maxId}`,
+          matchIdx: roundIdx,
+          team1Id: minId,
+          team2Id: maxId,
+          score1: null,
+          score2: null,
+          winnerId: null,
+        });
+      }
+      matchCount++;
+    }
+  }
+
+  return result;
 }
 
 /**
