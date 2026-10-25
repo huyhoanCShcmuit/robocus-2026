@@ -32,12 +32,12 @@ export const LeaderboardB: React.FC<LeaderboardBProps> = ({ teams = [], autoRank
           {/* Table Header Row */}
           <div className="flex items-center gap-3 px-6 sm:px-8 py-2 text-cyan-300 font-orbitron font-extrabold text-xs sm:text-sm uppercase tracking-widest text-glow-cyan mb-1">
             {/* Left Info Panel */}
-            <div className="flex items-center shrink-0 w-[480px] sm:w-[660px]">
-              <div className="w-24 sm:w-36 text-left pl-2 sm:pl-4">ĐỘI</div>
-              <div className="w-24 sm:w-32 text-center">SỐ LƯỢT</div>
-              <div className="w-24 sm:w-32 text-center">TỔNG ĐIỂM</div>
-              <div className="w-28 sm:w-40 text-center">SỐ NV</div>
-              <div className="w-28 sm:w-44 text-center">LƯỢT CAO NHẤT</div>
+            <div className="flex items-center shrink-0 w-[500px] sm:w-[680px]">
+              <div className="w-36 sm:w-56 text-left pl-2 sm:pl-4">ĐỘI</div>
+              <div className="w-20 sm:w-24 text-center">SỐ LƯỢT</div>
+              <div className="w-20 sm:w-28 text-center">TỔNG ĐIỂM</div>
+              <div className="w-20 sm:w-28 text-center">SỐ NV</div>
+              <div className="w-24 sm:w-36 text-center">LƯỢT CAO NHẤT</div>
             </div>
             {/* Right Tasks Panel 1..8 */}
             <div className="flex-1 grid grid-cols-8 gap-2 text-center">
@@ -68,34 +68,34 @@ export const LeaderboardB: React.FC<LeaderboardBProps> = ({ teams = [], autoRank
                     )}`}
                   >
                     {/* Left Info Panel */}
-                    <div className="flex items-center shrink-0 w-[480px] sm:w-[660px]">
+                    <div className="flex items-center shrink-0 w-[500px] sm:w-[680px]">
                       {/* 1. Đội */}
-                      <div className="w-24 sm:w-36 pl-3 sm:pl-4 flex items-center overflow-hidden">
-                        <span className="font-orbitron font-black text-base sm:text-xl tracking-wider uppercase truncate flex items-center gap-1">
+                      <div className="w-36 sm:w-56 pl-3 sm:pl-4 flex items-center overflow-hidden">
+                        <span className="font-orbitron font-black text-base sm:text-xl tracking-wider uppercase whitespace-nowrap flex items-center gap-1.5">
                           {!autoRankingEnabled && team.customMedal === 'GOLD' && <span>🥇</span>}
                           {!autoRankingEnabled && team.customMedal === 'SILVER' && <span>🥈</span>}
                           {!autoRankingEnabled && team.customMedal === 'BRONZE' && <span>🥉</span>}
-                          {team.name}
+                          <span>{team.name}</span>
                         </span>
                       </div>
 
                       {/* 2. Số lượt thi đấu */}
-                      <div className="w-24 sm:w-32 text-center font-orbitron font-bold text-base sm:text-lg">
+                      <div className="w-20 sm:w-24 text-center font-orbitron font-bold text-base sm:text-lg">
                         {roundsPlayed}
                       </div>
 
                       {/* 3. Tổng Điểm */}
-                      <div className="w-24 sm:w-32 text-center font-orbitron font-bold text-base sm:text-lg">
+                      <div className="w-20 sm:w-28 text-center font-orbitron font-bold text-base sm:text-lg">
                         {team.totalScore || 0}
                       </div>
 
                       {/* 4. Số nhiệm vụ hoàn thành */}
-                      <div className="w-28 sm:w-40 text-center font-orbitron font-bold text-base sm:text-lg">
+                      <div className="w-20 sm:w-28 text-center font-orbitron font-bold text-base sm:text-lg">
                         {team.completedTasksCount || 0}
                       </div>
 
                       {/* 5. Điểm lượt cao nhất */}
-                      <div className="w-28 sm:w-44 text-center font-orbitron font-bold text-base sm:text-lg">
+                      <div className="w-24 sm:w-36 text-center font-orbitron font-bold text-base sm:text-lg">
                         {team.maxRoundScore || 0}
                       </div>
                     </div>

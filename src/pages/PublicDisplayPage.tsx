@@ -25,6 +25,33 @@ export const PublicDisplayPage: React.FC = () => {
   const rotateTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const countdownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Latest values for interval callbacks (avoid stale closures)
+  const activeDivisionRef = useRef<DivisionId>(activeDivision);
+  const pageIndexRef = useRef<number>(pageIndex);
+  const paginateModeRef = useRef<boolean>(paginateMode);
+  activeDivisionRef.current = activeDivision;
+  pageIndexRef.current = pageIndex;
+  paginateModeRef.current = paginateMode;
+
+  // Advance to page 2 of current division, or to the next division
+  const rotateNext = () => {
+    const currentDiv = activeDivisionRef.current;
+    if (paginateModeRef.current && currentDiv !== 'C' && pageIndexRef.current === 0) {
+      pageIndexRef.current = 1;
+      setPageIndex(1);
+    } else {
+      const nextDiv = DIVISIONS[(DIVISIONS.indexOf(currentDiv) + 1) % DIVISIONS.length];
+      activeDivisionRef.current = nextDiv;
+      pageIndexRef.current = 0;
+      setActiveDivision(nextDiv);
+      setPageIndex(0);
+    }
+
+    countdownRef.current = AUTO_SWITCH_MS;
+    lastTickRef.current = Date.now();
+    setCountdown(AUTO_SWITCH_MS);
+  };
+
   // Subscribe to real-time updates from syncManager
   useEffect(() => {
     const unsubscribe = syncManager.subscribe((freshData) => {
@@ -58,24 +85,7 @@ export const PublicDisplayPage: React.FC = () => {
     setCountdown(AUTO_SWITCH_MS);
 
     // Rotate division / page
-    rotateTimerRef.current = setInterval(() => {
-      setActiveDivision((currentDiv) => {
-        if (paginateMode && currentDiv !== 'C' && pageIndex === 0) {
-          // Go to page 2 of current division
-          setPageIndex(1);
-          return currentDiv;
-        } else {
-          // Go to next division and reset pageIndex to 0
-          setPageIndex(0);
-          const idx = DIVISIONS.indexOf(currentDiv);
-          return DIVISIONS[(idx + 1) % DIVISIONS.length];
-        }
-      });
-
-      countdownRef.current = AUTO_SWITCH_MS;
-      lastTickRef.current = Date.now();
-      setCountdown(AUTO_SWITCH_MS);
-    }, AUTO_SWITCH_MS);
+    rotateTimerRef.current = setInterval(rotateNext, AUTO_SWITCH_MS);
 
     countdownTimerRef.current = setInterval(() => {
       const now = Date.now();
@@ -99,26 +109,7 @@ export const PublicDisplayPage: React.FC = () => {
       lastTickRef.current = Date.now();
       setCountdown(AUTO_SWITCH_MS);
       if (rotateTimerRef.current) clearInterval(rotateTimerRef.current);
-      rotateTimerRef.current = setInterval(() => {
-        if (paginateMode) {
-          setPageIndex((prevPage) => {
-            if (prevPage === 0) return 1;
-            setActiveDivision((prevDiv) => {
-              const idx = DIVISIONS.indexOf(prevDiv);
-              return DIVISIONS[(idx + 1) % DIVISIONS.length];
-            });
-            return 0;
-          });
-        } else {
-          setActiveDivision((prevDiv) => {
-            const idx = DIVISIONS.indexOf(prevDiv);
-            return DIVISIONS[(idx + 1) % DIVISIONS.length];
-          });
-        }
-        countdownRef.current = AUTO_SWITCH_MS;
-        lastTickRef.current = Date.now();
-        setCountdown(AUTO_SWITCH_MS);
-      }, AUTO_SWITCH_MS);
+      rotateTimerRef.current = setInterval(rotateNext, AUTO_SWITCH_MS);
     }
   };
 

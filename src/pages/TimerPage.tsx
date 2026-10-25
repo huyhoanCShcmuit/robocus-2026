@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { CompetitionData, TimerState } from '../types';
 import { syncManager } from '../utils/syncManager';
 import { Footer } from '../components/Footer';
@@ -22,6 +22,11 @@ export const TimerPage: React.FC = () => {
 
   const timerState: TimerState = data?.timer || DEFAULT_TIMER;
 
+  // Latest sound toggle for the countdown interval, and the end time already alerted
+  const soundEnabledRef = useRef<boolean>(soundEnabled);
+  soundEnabledRef.current = soundEnabled;
+  const alertedEndTimeRef = useRef<number | null>(null);
+
   // Listen to syncManager real-time data updates
   useEffect(() => {
     const unsubscribe = syncManager.subscribe((freshData) => {
@@ -39,8 +44,9 @@ export const TimerPage: React.FC = () => {
         const rem = Math.max(0, diff);
         setDisplaySeconds(rem);
 
-        // Alert sound when reached 0
-        if (rem <= 0 && timerState.isRunning) {
+        // Alert sound once when reached 0
+        if (rem <= 0 && alertedEndTimeRef.current !== timerState.targetEndTime) {
+          alertedEndTimeRef.current = timerState.targetEndTime;
           playAlertSound();
         }
       } else {
@@ -63,8 +69,8 @@ export const TimerPage: React.FC = () => {
   }, []);
 
   // Play electronic alert chime
-  const playAlertSound = () => {
-    if (!soundEnabled) return;
+  function playAlertSound() {
+    if (!soundEnabledRef.current) return;
     try {
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioContext) return;
@@ -90,7 +96,7 @@ export const TimerPage: React.FC = () => {
     } catch (e) {
       console.warn("Audio playback not allowed:", e);
     }
-  };
+  }
 
   // Format MM:SS
   const formatTime = (totalSec: number) => {

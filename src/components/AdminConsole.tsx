@@ -59,7 +59,7 @@ export const AdminConsole: React.FC<AdminConsoleProps> = ({
         const imported = JSON.parse(event.target?.result as string);
         commitData(imported);
         alert('Đã nhập dữ liệu thành công!');
-      } catch (err) {
+      } catch {
         alert('File JSON không hợp lệ!');
       }
     };

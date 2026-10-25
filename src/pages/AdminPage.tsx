@@ -42,7 +42,7 @@ export const AdminPage: React.FC = () => {
         setSelectedTeam2Id(teams[1].id);
       }
     }
-  }, [formData?.teamsA]);
+  }, [formData?.teamsA, selectedTeam1Id, selectedTeam2Id]);
 
   // Subscribe to real-time data
   useEffect(() => {
@@ -271,7 +271,7 @@ export const AdminPage: React.FC = () => {
         const imported = JSON.parse(event.target?.result as string);
         commitData(imported);
         alert('Đã nhập dữ liệu thành công!');
-      } catch (err) {
+      } catch {
         alert('File JSON không hợp lệ!');
       }
     };

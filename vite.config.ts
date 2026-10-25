@@ -43,11 +43,11 @@ function syncApiPlugin(): Plugin {
               clients.forEach((client) => {
                 try {
                   client.write(eventPayload);
-                } catch (err) {
+                } catch {
                   clients.delete(client);
                 }
               });
-            } catch (err) {
+            } catch {
               res.statusCode = 500;
               res.end(JSON.stringify({ error: 'Failed to save data' }));
             }

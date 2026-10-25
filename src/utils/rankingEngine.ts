@@ -86,10 +86,19 @@ export function calculateRankingsA(
     }
   } else {
     // MANUAL MEDAL SORTING
+    // Ưu tiên 1: Huy chương (Vàng -> Bạc -> Đồng -> Không)
+    // Ưu tiên 2: Số trận Thắng (desc)
+    // Ưu tiên 3: Tổng Điểm (desc)
     rankedList.sort((a, b) => {
       const mA = medalOrder[a.customMedal || 'NONE'];
       const mB = medalOrder[b.customMedal || 'NONE'];
       if (mA !== mB) return mA - mB;
+      if (b.wins !== a.wins) {
+        return b.wins - a.wins;
+      }
+      if (b.totalScore !== a.totalScore) {
+        return b.totalScore - a.totalScore;
+      }
       return 0;
     });
 
@@ -204,10 +213,23 @@ export function calculateRankingsB(
     }
   } else {
     // MANUAL MEDAL SORTING
+    // Ưu tiên 1: Huy chương (Vàng -> Bạc -> Đồng -> Không)
+    // Ưu tiên 2: Tổng ĐIỂM (desc)
+    // Ưu tiên 3: Tổng số NHIỆM VỤ hoàn thành (desc)
+    // Ưu tiên 4: Lượt có ĐIỂM CAO NHẤT (desc)
     rankedList.sort((a, b) => {
       const mA = medalOrder[a.customMedal || 'NONE'];
       const mB = medalOrder[b.customMedal || 'NONE'];
       if (mA !== mB) return mA - mB;
+      if (b.totalScore !== a.totalScore) {
+        return b.totalScore - a.totalScore;
+      }
+      if (b.completedTasksCount !== a.completedTasksCount) {
+        return b.completedTasksCount - a.completedTasksCount;
+      }
+      if (b.maxRoundScore !== a.maxRoundScore) {
+        return b.maxRoundScore - a.maxRoundScore;
+      }
       return 0;
     });
 
@@ -321,10 +343,32 @@ export function calculateRankingsC(
       }
     }
   } else {
+    // MANUAL MEDAL SORTING
+    // Ưu tiên 1: Huy chương (Vàng -> Bạc -> Đồng -> Không)
+    // Ưu tiên 2: Điểm số (desc)
+    // Ưu tiên 3: Số trận Thắng (desc)
+    // Ưu tiên 4: Số trận Hòa (desc)
+    // Ưu tiên 5: Số trận Thua (asc)
+    // Ưu tiên 6: Hiệu số bàn thắng/bại (desc)
     rankedList.sort((a, b) => {
       const mA = medalOrder[a.customMedal || 'NONE'];
       const mB = medalOrder[b.customMedal || 'NONE'];
       if (mA !== mB) return mA - mB;
+      if (b.points !== a.points) {
+        return b.points - a.points;
+      }
+      if (b.wins !== a.wins) {
+        return b.wins - a.wins;
+      }
+      if (b.draws !== a.draws) {
+        return b.draws - a.draws;
+      }
+      if (a.losses !== b.losses) {
+        return a.losses - b.losses;
+      }
+      if (b.goalDifference !== a.goalDifference) {
+        return b.goalDifference - a.goalDifference;
+      }
       return 0;
     });
 

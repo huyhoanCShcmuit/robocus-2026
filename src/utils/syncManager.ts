@@ -106,9 +106,31 @@ class SyncManager {
 
   private updateLocalState(data: CompetitionData) {
     if (!data) return;
+
+    let currentLocal: CompetitionData | null = this.memoryCache;
+    if (!currentLocal && typeof window !== 'undefined') {
+      try {
+        const json = localStorage.getItem(STORAGE_KEY);
+        if (json) currentLocal = JSON.parse(json);
+      } catch (e) {
+        console.warn('Failed to parse local storage in updateLocalState:', e);
+      }
+    }
+
+    // Do not allow older remote data to overwrite newer local data
+    if (
+      currentLocal &&
+      currentLocal.lastUpdated &&
+      data.lastUpdated &&
+      data.lastUpdated < currentLocal.lastUpdated
+    ) {
+      return;
+    }
+
     if (this.memoryCache && data.lastUpdated && this.memoryCache.lastUpdated === data.lastUpdated) {
       return;
     }
+
     this.memoryCache = data;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
